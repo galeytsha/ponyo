@@ -3,36 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor Kualitas Air</title>
+    <title>Monitor Kualitas Air - UMRAH</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        /* --- RESET & GLOBAL VARIABLES --- */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Quicksand', sans-serif; }
         body { background-color: #f7f9fc; color: #333; padding: 20px; display: flex; flex-direction: column; align-items: center; }
         .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
 
-        /* --- HEADER --- */
-        .header { text-align: center; margin-bottom: 10px; }
-        .header h1 { font-size: 24px; font-weight: 700; color: #2c3e50; margin-bottom: 5px; }
-        .header p { font-size: 14px; font-weight: 500; color: #7f8c8d; }
+        /* --- HEADER DENGAN MASKOT --- */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .mascot-header { position: relative; width: 80px; flex-shrink: 0; }
+        .mascot-header img { width: 100%; height: auto; display: block; }
+        .mascot-text-header {
+            position: absolute;
+            top: 25%;
+            left: 75%;
+            transform: translate(-50%, -50%);
+            font-size: 11px;
+            font-weight: 700;
+            color: #333;
+        }
+        .header-text { text-align: left; }
+        .header-text h1 { font-size: 18px; font-weight: 700; color: #2c3e50; margin-bottom: 2px; }
+        .header-text p { font-size: 12px; color: #7f8c8d; }
 
-        /* --- CARDS UTAMA --- */
+        /* --- KARTU DATA --- */
         .card { background-color: #ffffff; border-radius: 20px; padding: 20px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.03); }
-        .summary-list { display: flex; flex-direction: column; gap: 15px; }
-        .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 16px; font-weight: 700; color: #4a4a4a; }
-        .item-left { display: flex; align-items: center; gap: 15px; }
-        .item-icon { font-size: 24px; width: 30px; text-align: center; }
+        .summary-list { display: flex; flex-direction: column; gap: 12px; }
+        .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; color: #4a4a4a; }
+        .item-left { display: flex; align-items: center; gap: 12px; }
+        .item-icon { font-size: 22px; width: 28px; text-align: center; }
 
-        /* --- CHART STYLES --- */
-        .chart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; font-weight: 700; color: #2c3e50; }
-        .chart-container { position: relative; height: 200px; width: 100%; }
+        /* --- GRAFIK --- */
+        .chart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 700; color: #2c3e50; font-size: 14px; }
+        .chart-container { position: relative; height: 180px; width: 100%; }
 
         /* --- FOOTER --- */
-        .footer { text-align: center; margin-top: 30px; margin-bottom: 20px; font-weight: 700; color: #2c3e50; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .footer img { height: 40px; width: auto; }
+        .footer { text-align: center; margin-top: 20px; padding-bottom: 30px; font-weight: 700; color: #2c3e50; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; }
+        .footer img { height: 35px; width: auto; }
     </style>
 </head>
 <body>
@@ -40,65 +62,69 @@
     <div class="container">
         
         <div class="header">
-            <h1>Monitor Kualitas Air</h1>
-            <p id="last-update">Terakhir Update: Menunggu data...</p>
+            <div class="mascot-header">
+                <img id="mascotImage" src="Bangun.png" alt="Maskot">
+                <div class="mascot-text-header" id="mascotText">halo</div>
+            </div>
+            <div class="header-text">
+                <h1>Monitor Kualitas Air</h1>
+                <p id="last-update">Menunggu data...</p>
+            </div>
         </div>
 
         <div class="card">
             <div class="summary-list">
                 <div class="summary-item">
                     <div class="item-left"><span class="item-icon">🌡️</span><span>Suhu Air</span></div>
-                    <span id="val-suhu-air">0 °C</span>
+                    <span id="val-suhu-air">-- °C</span>
                 </div>
                 <div class="summary-item">
                     <div class="item-left"><span class="item-icon">💧</span><span>pH Air</span></div>
-                    <span id="val-ph">0</span>
+                    <span id="val-ph">--</span>
                 </div>
                 <div class="summary-item">
                     <div class="item-left"><span class="item-icon">🟤</span><span>Kekeruhan</span></div>
-                    <span id="val-kekeruhan">0 NTU</span>
+                    <span id="val-kekeruhan">-- NTU</span>
                 </div>
                 <div class="summary-item">
                     <div class="item-left"><span class="item-icon">🌤️</span><span>Suhu Udara</span></div>
-                    <span id="val-suhu-udara">0 °C</span>
+                    <span id="val-suhu-udara">-- °C</span>
                 </div>
                 <div class="summary-item">
                     <div class="item-left"><span class="item-icon">💨</span><span>Kelembaban</span></div>
-                    <span id="val-kelembaban">0 %</span>
+                    <span id="val-kelembaban">-- %</span>
                 </div>
             </div>
         </div>
 
         <div class="card">
-            <div class="chart-header"><span class="item-icon">🌡️</span> Suhu (°C)</div>
+            <div class="chart-header">Suhu (°C)</div>
             <div class="chart-container"><canvas id="chartSuhu"></canvas></div>
         </div>
         <div class="card">
-            <div class="chart-header"><span class="item-icon">💧</span> pH Air</div>
+            <div class="chart-header">pH Air</div>
             <div class="chart-container"><canvas id="chartPH"></canvas></div>
         </div>
         <div class="card">
-            <div class="chart-header"><span class="item-icon">🟤</span> Kekeruhan Air (NTU)</div>
+            <div class="chart-header">Kekeruhan (NTU)</div>
             <div class="chart-container"><canvas id="chartKekeruhan"></canvas></div>
         </div>
         <div class="card">
-            <div class="chart-header"><span class="item-icon">💨</span> Kelembaban Udara (%)</div>
+            <div class="chart-header">Kelembaban (%)</div>
             <div class="chart-container"><canvas id="chartKelembaban"></canvas></div>
         </div>
 
         <div class="footer">
-            <img src="Untitled design (2).png" alt="Logo UMRAH">
+            <img src="Umrah.png" alt="Logo UMRAH">
             <span>Universitas Maritim Raja Ali Haji</span>
         </div>
 
     </div>
 
     <script type="module">
-        // 1. Import SDK Firebase v9
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // 2. Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
             authDomain: "kualitas-air-74caa.firebaseapp.com",
@@ -109,64 +135,82 @@
             appId: "1:1043958781105:web:59c84659c1030381e33e90"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // 3. Konfigurasi Awal Chart.js
-        Chart.defaults.font.family = 'Quicksand';
-        Chart.defaults.color = '#7f8c8d';
-        
+        // --- KONFIGURASI CHART ---
         const commonOptions = {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            elements: { line: { tension: 0.4 }, point: { radius: 4 } }
+            scales: { x: { grid: { display: false } }, y: { beginAtZero: false } }
         };
 
-        // Inisialisasi Grafik Kosong
-        let chartSuhu = new Chart(document.getElementById('chartSuhu'), { type: 'line', data: { labels: [], datasets: [{ label: 'Suhu Air', data: [], borderColor: '#3498db' }, { label: 'Suhu Udara', data: [], borderColor: '#e67e22' }] }, options: { ...commonOptions, plugins: { legend: { display: true } } } });
-        let chartPH = new Chart(document.getElementById('chartPH'), { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#8e44ad' }] }, options: commonOptions });
-        let chartKekeruhan = new Chart(document.getElementById('chartKekeruhan'), { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#8b4513' }] }, options: commonOptions });
-        let chartKelembaban = new Chart(document.getElementById('chartKelembaban'), { type: 'line', data: { labels: [], datasets: [{ data: [], borderColor: '#1abc9c' }] }, options: commonOptions });
+        function createChart(id, color, label) {
+            return new Chart(document.getElementById(id), {
+                type: 'line',
+                data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.4, pointRadius: 3 }] },
+                options: commonOptions
+            });
+        }
 
-        // Fungsi untuk memperbarui grafik secara dinamis
-        function updateChart(chart, label, dataArray) {
-            chart.data.labels.push(label);
-            dataArray.forEach((data, index) => { chart.data.datasets[index].data.push(data); });
-            // Batasi agar grafik hanya menampilkan 6 titik terakhir
-            if (chart.data.labels.length > 6) {
+        const chartSuhu = createChart('chartSuhu', '#3498db', 'Suhu');
+        const chartPH = createChart('chartPH', '#8e44ad', 'pH');
+        const chartKekeruhan = createChart('chartKekeruhan', '#8b4513', 'Kekeruhan');
+        const chartKelembaban = createChart('chartKelembaban', '#1abc9c', 'Kelembaban');
+
+        function pushData(chart, time, val) {
+            chart.data.labels.push(time);
+            chart.data.datasets[0].data.push(val);
+            if(chart.data.labels.length > 7) {
                 chart.data.labels.shift();
-                chart.data.datasets.forEach(dataset => dataset.data.shift());
+                chart.data.datasets[0].data.shift();
             }
             chart.update();
         }
 
-        // 4. Membaca Data dari Firebase (Real-Time)
-        // Pastikan alat ESP32/Arduino Anda mengirim data ke node 'Monitoring'
-        const sensorRef = ref(db, 'Monitoring'); 
-        
+        // --- MASKOT LOGIC ---
+        let lastDataTime = Date.now();
+        function updateMascot(isActive) {
+            const img = document.getElementById('mascotImage');
+            const txt = document.getElementById('mascotText');
+            if(isActive) {
+                img.src = 'Bangun.png';
+                txt.innerText = 'halo';
+            } else {
+                img.src = 'tidur.png';
+                txt.innerText = 'zzz~~';
+            }
+        }
+
+        // --- FIREBASE REAL-TIME ---
+        const sensorRef = ref(db, 'Monitoring');
         onValue(sensorRef, (snapshot) => {
             const data = snapshot.val();
-            if (data) {
-                // Update Teks Angka
-                document.getElementById('val-suhu-air').innerText = (data.suhu_air || 0) + " °C";
-                document.getElementById('val-ph').innerText = (data.ph || 0);
-                document.getElementById('val-kekeruhan').innerText = (data.kekeruhan || 0) + " NTU";
-                document.getElementById('val-suhu-udara').innerText = (data.suhu_udara || 0) + " °C";
-                document.getElementById('val-kelembaban').innerText = (data.kelembaban || 0) + " %";
+            if(data) {
+                lastDataTime = Date.now();
+                updateMascot(true);
 
-                // Update Waktu
+                document.getElementById('val-suhu-air').innerText = data.suhu_air + " °C";
+                document.getElementById('val-ph').innerText = data.ph;
+                document.getElementById('val-kekeruhan').innerText = data.kekeruhan + " NTU";
+                document.getElementById('val-suhu-udara').innerText = data.suhu_udara + " °C";
+                document.getElementById('val-kelembaban').innerText = data.kelembaban + " %";
+
                 const now = new Date();
-                const timeString = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                document.getElementById('last-update').innerText = "Terakhir Update: " + timeString;
+                const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
+                document.getElementById('last-update').innerText = "Update: " + time;
 
-                // Update Grafik dengan data baru yang masuk
-                updateChart(chartSuhu, timeString, [data.suhu_air, data.suhu_udara]);
-                updateChart(chartPH, timeString, [data.ph]);
-                updateChart(chartKekeruhan, timeString, [data.kekeruhan]);
-                updateChart(chartKelembaban, timeString, [data.kelembaban]);
+                pushData(chartSuhu, time, data.suhu_air);
+                pushData(chartPH, time, data.ph);
+                pushData(chartKekeruhan, time, data.kekeruhan);
+                pushData(chartKelembaban, time, data.kelembaban);
             }
         });
+
+        // Cek jika alat tidak kirim data dalam 30 detik (maskot tidur)
+        setInterval(() => {
+            if(Date.now() - lastDataTime > 30000) updateMascot(false);
+        }, 10000);
     </script>
 </body>
 </html>
