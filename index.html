@@ -74,7 +74,11 @@
             </div>
         </div>
 
-        <div class="card"><div class="chart-header">🌡️ Suhu Air (°C)</div><div class="chart-container"><canvas id="chartSuhu"></canvas></div></div>
+        <div class="card">
+            <div class="chart-header">🌡️ Suhu Air & Udara (°C)</div>
+            <div class="chart-container"><canvas id="chartSuhu"></canvas></div>
+        </div>
+        
         <div class="card"><div class="chart-header">💧 pH Air</div><div class="chart-container"><canvas id="chartPH"></canvas></div></div>
         <div class="card"><div class="chart-header">🟤 Kekeruhan (NTU)</div><div class="chart-container"><canvas id="chartKekeruhan"></canvas></div></div>
         <div class="card"><div class="chart-header">💨 Kelembaban Udara (%)</div><div class="chart-container"><canvas id="chartKelembaban"></canvas></div></div>
@@ -102,7 +106,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, onValue, get, child, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
             authDomain: "kualitas-air-74caa.firebaseapp.com",
@@ -118,21 +121,57 @@
 
         // --- INISIALISASI GRAFIK ---
         const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: false } } };
-        function createChart(id, color, label) { return new Chart(document.getElementById(id), { type: 'line', data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.4, pointRadius: 2 }] }, options: commonOptions }); }
         
-        const chartSuhu = createChart('chartSuhu', '#e74c3c', 'Suhu Air'); 
+        function createChart(id, color, label) { 
+            return new Chart(document.getElementById(id), { 
+                type: 'line', 
+                data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.4, pointRadius: 2 }] }, 
+                options: commonOptions 
+            }); 
+        }
+        
+        // Pembuatan Grafik Gabungan Suhu
+        const chartSuhu = new Chart(document.getElementById('chartSuhu'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    { label: 'Suhu Air', data: [], borderColor: '#e74c3c', tension: 0.4, pointRadius: 2 },
+                    { label: 'Suhu Udara', data: [], borderColor: '#f39c12', tension: 0.4, pointRadius: 2 } // Garis warna oranye
+                ]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { 
+                    legend: { display: true, position: 'top', labels: { boxWidth: 12, font: {size: 11} } } // Menampilkan keterangan warna
+                },
+                scales: { x: { grid: { display: false } }, y: { beginAtZero: false } }
+            }
+        });
+
         const chartPH = createChart('chartPH', '#9b59b6', 'pH Air'); 
         const chartKekeruhan = createChart('chartKekeruhan', '#e67e22', 'Kekeruhan'); 
         const chartKelembaban = createChart('chartKelembaban', '#3498db', 'Kelembaban');
 
-        function pushData(chart, time, val) { 
+        // Fungsi khusus untuk mendorong data ke 1 garis (pH, kekeruhan, dll)
+        function pushDataSingle(chart, time, val) { 
             chart.data.labels.push(time); 
             chart.data.datasets[0].data.push(val); 
-            if(chart.data.labels.length > 24) {  // Menampilkan maksimal 24 titik grafik
-                chart.data.labels.shift(); 
-                chart.data.datasets[0].data.shift(); 
-            } 
+            if(chart.data.labels.length > 24) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); } 
             chart.update(); 
+        }
+
+        // Fungsi khusus untuk mendorong 2 data sekaligus ke grafik Suhu
+        function pushDataDual(chart, time, valAir, valUdara) {
+            chart.data.labels.push(time);
+            chart.data.datasets[0].data.push(valAir);
+            chart.data.datasets[1].data.push(valUdara);
+            if(chart.data.labels.length > 24) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+                chart.data.datasets[1].data.shift();
+            }
+            chart.update();
         }
 
         // --- ANIMASI MASKOT ---
@@ -149,7 +188,7 @@
         get(historyRef).then((snapshot) => {
             if (snapshot.exists()) {
                 // Bersihkan grafik
-                chartSuhu.data.labels = []; chartSuhu.data.datasets[0].data = [];
+                chartSuhu.data.labels = []; chartSuhu.data.datasets[0].data = []; chartSuhu.data.datasets[1].data = [];
                 chartPH.data.labels = []; chartPH.data.datasets[0].data = [];
                 chartKekeruhan.data.labels = []; chartKekeruhan.data.datasets[0].data = [];
                 chartKelembaban.data.labels = []; chartKelembaban.data.datasets[0].data = [];
@@ -158,7 +197,11 @@
                     const val = childSnapshot.val();
                     const jamMenit = val.waktu ? val.waktu.substring(0, 5) : "--:--"; 
 
-                    if(val.suhu_air != null) { chartSuhu.data.labels.push(jamMenit); chartSuhu.data.datasets[0].data.push(val.suhu_air); }
+                    if(val.suhu_air != null && val.suhu_udara != null) { 
+                        chartSuhu.data.labels.push(jamMenit); 
+                        chartSuhu.data.datasets[0].data.push(val.suhu_air); 
+                        chartSuhu.data.datasets[1].data.push(val.suhu_udara); 
+                    }
                     if(val.ph != null) { chartPH.data.labels.push(jamMenit); chartPH.data.datasets[0].data.push(val.ph); }
                     if(val.kekeruhan != null) { chartKekeruhan.data.labels.push(jamMenit); chartKekeruhan.data.datasets[0].data.push(val.kekeruhan); }
                     if(val.kelembaban != null) { chartKelembaban.data.labels.push(jamMenit); chartKelembaban.data.datasets[0].data.push(val.kelembaban); }
@@ -169,7 +212,7 @@
         });
 
         // ===============================================
-        // 2. PANTAU DATA REAL-TIME (KERAMBA/LATEST)
+        // 2. PANTAU DATA REAL-TIME
         // ===============================================
         const sensorRef = ref(db, 'keramba/latest');
         onValue(sensorRef, (snapshot) => {
@@ -186,17 +229,18 @@
                 const time = data.waktu ? data.waktu.substring(0, 5) : "--:--";
                 document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
                 
-                pushData(chartSuhu, time, data.suhu_air); 
-                pushData(chartPH, time, data.ph); 
-                pushData(chartKekeruhan, time, data.kekeruhan); 
-                pushData(chartKelembaban, time, data.kelembaban);
+                // Mendorong data ke grafik
+                pushDataDual(chartSuhu, time, data.suhu_air, data.suhu_udara); 
+                pushDataSingle(chartPH, time, data.ph); 
+                pushDataSingle(chartKekeruhan, time, data.kekeruhan); 
+                pushDataSingle(chartKelembaban, time, data.kelembaban);
             }
         });
 
         setInterval(() => { if(Date.now() - lastDataTime > 65000) updateMascot(false); }, 10000);
 
         // ===============================================
-        // 3. FITUR UNDUH LAPORAN HARIAN (CSV)
+        // 3. FITUR UNDUH LAPORAN HARIAN
         // ===============================================
         const modal = document.getElementById("downloadModal");
         const btnOpen = document.getElementById("btnOpenModal");
@@ -204,7 +248,6 @@
         const btnConfirm = document.getElementById("btnConfirmDownload");
         const datePicker = document.getElementById("datePicker");
 
-        // Set batasan kalender maksimal kemarin
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
@@ -214,10 +257,9 @@
         if(btnCancel) btnCancel.onclick = () => { modal.style.display = "none"; }
 
         if(btnConfirm) btnConfirm.onclick = () => {
-            const selectedDate = datePicker.value; // Output HTML: YYYY-MM-DD
+            const selectedDate = datePicker.value; 
             if(!selectedDate) { alert("Silakan pilih tanggal terlebih dahulu!"); return; }
 
-            // Format tanggal ESP32 adalah DD/MM/YYYY
             const dateParts = selectedDate.split('-');
             const targetDateESP32 = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
