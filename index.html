@@ -100,9 +100,9 @@
         </div>
     </div>
 
-    <script type="module">
+   <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, child, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
@@ -117,11 +117,26 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- KONFIGURASI CHART (Sama seperti sebelumnya) ---
+        // --- KONFIGURASI CHART ---
         const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: false } } };
         function createChart(id, color, label) { return new Chart(document.getElementById(id), { type: 'line', data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.4, pointRadius: 3 }] }, options: commonOptions }); }
-        const chartSuhu = createChart('chartSuhu', '#3498db', 'Suhu'); const chartPH = createChart('chartPH', '#8e44ad', 'pH'); const chartKekeruhan = createChart('chartKekeruhan', '#8b4513', 'Kekeruhan'); const chartKelembaban = createChart('chartKelembaban', '#1abc9c', 'Kelembaban');
-        function pushData(chart, time, val) { chart.data.labels.push(time); chart.data.datasets[0].data.push(val); if(chart.data.labels.length > 7) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); } chart.update(); }
+        
+        const chartSuhu = createChart('chartSuhu', '#3498db', 'Suhu'); 
+        const chartPH = createChart('chartPH', '#8e44ad', 'pH'); 
+        const chartKekeruhan = createChart('chartKekeruhan', '#8b4513', 'Kekeruhan'); 
+        const chartKelembaban = createChart('chartKelembaban', '#1abc9c', 'Kelembaban');
+
+        // Fungsi penambah titik data
+        function pushData(chart, time, val) { 
+            chart.data.labels.push(time); 
+            chart.data.datasets[0].data.push(val); 
+            // Batasi agar grafik tidak terlalu padat (misal maksimal 24 titik untuk 24 jam)
+            if(chart.data.labels.length > 24) { 
+                chart.data.labels.shift(); 
+                chart.data.datasets[0].data.shift(); 
+            } 
+            chart.update(); 
+        }
 
         // --- LOGIKA MASKOT ---
         let lastDataTime = Date.now();
@@ -130,26 +145,70 @@
             if(isActive) { img.src = 'wake.png'; } else { img.src = 'sleep.png'; }
         }
 
-        // --- BACA DATA REALTIME ---
+        // =========================================================
+        // BAGIAN BARU: MENGAMBIL DATA 24 JAM SAAT WEB DIBUKA
+        // =========================================================
+        const hariIni = new Date().toISOString().split('T')[0]; // Mendapatkan YYYY-MM-DD hari ini
+        const historyRef = ref(db, `History/${hariIni}`);
+
+        get(historyRef).then((snapshot) => {
+            if (snapshot.exists()) {
+                const dataHarian = snapshot.val();
+                
+                // Kosongkan grafik bawaan
+                chartSuhu.data.labels = []; chartSuhu.data.datasets[0].data = [];
+                chartPH.data.labels = []; chartPH.data.datasets[0].data = [];
+                chartKekeruhan.data.labels = []; chartKekeruhan.data.datasets[0].data = [];
+                chartKelembaban.data.labels = []; chartKelembaban.data.datasets[0].data = [];
+
+                // Looping memasukkan data seharian ke grafik
+                Object.keys(dataHarian).forEach(timeKey => {
+                    const val = dataHarian[timeKey];
+                    const jamMenit = timeKey.substring(0, 5); // Ambil format HH:mm
+
+                    // Cek agar data tidak kosong/error
+                    if(val.suhu_air != null) { chartSuhu.data.labels.push(jamMenit); chartSuhu.data.datasets[0].data.push(val.suhu_air); }
+                    if(val.ph != null) { chartPH.data.labels.push(jamMenit); chartPH.data.datasets[0].data.push(val.ph); }
+                    if(val.kekeruhan != null) { chartKekeruhan.data.labels.push(jamMenit); chartKekeruhan.data.datasets[0].data.push(val.kekeruhan); }
+                    if(val.kelembaban != null) { chartKelembaban.data.labels.push(jamMenit); chartKelembaban.data.datasets[0].data.push(val.kelembaban); }
+                });
+                
+                // Render grafik
+                chartSuhu.update(); chartPH.update(); chartKekeruhan.update(); chartKelembaban.update();
+            }
+        });
+
+        // =========================================================
+        // PANTAU DATA REAL-TIME (Untuk update indikator angka teks)
+        // =========================================================
         const sensorRef = ref(db, 'Monitoring');
         onValue(sensorRef, (snapshot) => {
             const data = snapshot.val();
             if(data) {
                 lastDataTime = Date.now(); updateMascot(true);
+                
                 document.getElementById('val-suhu-air').innerText = (data.suhu_air || 0) + " °C";
                 document.getElementById('val-ph').innerText = (data.ph || 0);
                 document.getElementById('val-kekeruhan').innerText = (data.kekeruhan || 0) + " NTU";
                 document.getElementById('val-suhu-udara').innerText = (data.suhu_udara || 0) + " °C";
                 document.getElementById('val-kelembaban').innerText = (data.kelembaban || 0) + " %";
+                
                 const now = new Date(); const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
                 document.getElementById('last-update').innerText = "Update: " + time;
-                pushData(chartSuhu, time, data.suhu_air); pushData(chartPH, time, data.ph); pushData(chartKekeruhan, time, data.kekeruhan); pushData(chartKelembaban, time, data.kelembaban);
+                
+                // Tambahkan titik baru ke grafik secara real-time
+                pushData(chartSuhu, time, data.suhu_air); 
+                pushData(chartPH, time, data.ph); 
+                pushData(chartKekeruhan, time, data.kekeruhan); 
+                pushData(chartKelembaban, time, data.kelembaban);
             }
         });
+
+        // Maskot tidur jika 30 detik tidak ada data
         setInterval(() => { if(Date.now() - lastDataTime > 30000) updateMascot(false); }, 10000);
 
         // ==========================================
-        // --- LOGIKA FITUR UNDUH DATA (BARU) ---
+        // --- LOGIKA FITUR UNDUH DATA (TETAP ADA) ---
         // ==========================================
         const modal = document.getElementById("downloadModal");
         const btnOpen = document.getElementById("btnOpenModal");
@@ -157,62 +216,43 @@
         const btnConfirm = document.getElementById("btnConfirmDownload");
         const datePicker = document.getElementById("datePicker");
 
-        // Set batas maksimal tanggal yang bisa dipilih adalah KEMARIN
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
-        const maxDateString = yesterday.toISOString().split('T')[0];
-        datePicker.max = maxDateString;
+        datePicker.max = yesterday.toISOString().split('T')[0];
 
-        // Buka & Tutup Modal
-        btnOpen.onclick = () => { modal.style.display = "flex"; }
-        btnCancel.onclick = () => { modal.style.display = "none"; }
+        if(btnOpen) btnOpen.onclick = () => { modal.style.display = "flex"; }
+        if(btnCancel) btnCancel.onclick = () => { modal.style.display = "none"; }
 
-        // Proses Unduh Data
-        btnConfirm.onclick = () => {
+        if(btnConfirm) btnConfirm.onclick = () => {
             const selectedDate = datePicker.value;
-            if(!selectedDate) {
-                alert("Silakan pilih tanggal terlebih dahulu!");
-                return;
-            }
+            if(!selectedDate) { alert("Silakan pilih tanggal terlebih dahulu!"); return; }
 
-            btnConfirm.innerText = "Mengambil Data...";
-            btnConfirm.disabled = true;
+            btnConfirm.innerText = "Mengambil Data..."; btnConfirm.disabled = true;
 
-            const dbRef = ref(db);
-            // Mengambil folder 'History/YYYY-MM-DD'
-            get(child(dbRef, `History/${selectedDate}`)).then((snapshot) => {
+            get(child(ref(db), `History/${selectedDate}`)).then((snapshot) => {
                 if (snapshot.exists()) {
                     const dataHarian = snapshot.val();
-                    let csvContent = "data:text/csv;charset=utf-8,";
-                    // Header Kolom Excel
-                    csvContent += "Waktu,Suhu Air (°C),pH,Kekeruhan (NTU),Suhu Udara (°C),Kelembaban (%)\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Suhu Air (°C),pH,Kekeruhan (NTU),Suhu Udara (°C),Kelembaban (%)\n";
 
-                    // Mengisi baris data
                     for (const timeKey in dataHarian) {
                         const row = dataHarian[timeKey];
-                        csvContent += `${timeKey},${row.suhu_air},${row.ph},${row.kekeruhan},${row.suhu_udara},${row.kelembaban}\n`;
+                        csvContent += `${timeKey},${row.suhu_air || ''},${row.ph || ''},${row.kekeruhan || ''},${row.suhu_udara || ''},${row.kelembaban || ''}\n`;
                     }
 
-                    // Proses otomatis mengunduh fail
                     const encodedUri = encodeURI(csvContent);
                     const link = document.createElement("a");
                     link.setAttribute("href", encodedUri);
                     link.setAttribute("download", `Data_KualitasAir_${selectedDate}.csv`);
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
+                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
                     modal.style.display = "none";
                 } else {
                     alert(`Tidak ada data rekaman pada tanggal ${selectedDate}.`);
                 }
             }).catch((error) => {
-                alert("Terjadi kesalahan jaringan.");
-                console.error(error);
+                alert("Terjadi kesalahan jaringan."); console.error(error);
             }).finally(() => {
-                btnConfirm.innerText = "Unduh Data";
-                btnConfirm.disabled = false;
+                btnConfirm.innerText = "Unduh Data"; btnConfirm.disabled = false;
             });
         }
     </script>
