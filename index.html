@@ -14,10 +14,9 @@
         .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 20px; }
 
         /* --- HEADER --- */
-        .header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; width: 100%; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .mascot-header { position: relative; width: 120px; flex-shrink: 0; }
+        .header { display: flex; align-items: center; justify-content: center; gap: 15px; width: 100%; background: white; padding: 15px; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .mascot-header { position: relative; width: 100px; flex-shrink: 0; }
         .mascot-header img { width: 100%; height: auto; display: block; }
-        .mascot-text-header { position: absolute; top: 17%; left: 78%; transform: translate(-50%, -50%); font-size: 11px; font-weight: 700; color: #333; }
         .header-text { text-align: left; }
         .header-text h1 { font-size: 18px; font-weight: 700; color: #2c3e50; margin-bottom: 2px; }
         .header-text p { font-size: 12px; color: #7f8c8d; }
@@ -28,31 +27,31 @@
         .summary-item { display: flex; justify-content: space-between; align-items: center; font-size: 15px; font-weight: 700; color: #4a4a4a; }
         .item-left { display: flex; align-items: center; gap: 12px; }
         .item-icon { font-size: 22px; width: 28px; text-align: center; }
+
+        /* --- GRAFIK --- */
         .chart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 700; color: #2c3e50; font-size: 14px; }
         .chart-container { position: relative; height: 180px; width: 100%; }
 
-        /* --- TOMBOL UNDUH --- */
-        .btn-download-trigger { background-color: #27ae60; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3); transition: 0.2s; }
-        .btn-download-trigger:hover { background-color: #2ecc71; }
-
-        /* --- MODAL (POPUP) --- */
+        /* --- TOMBOL UNDUH & MODAL --- */
+        .btn-download-trigger { background-color: #27ae60; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3); }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-        .modal-content { background-color: #fff; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .modal-content { background-color: #fff; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
         .modal-content h3 { margin-bottom: 10px; color: #2c3e50; }
-        .modal-content p { font-size: 13px; color: #7f8c8d; margin-bottom: 20px; line-height: 1.4; }
-        .date-input { width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; margin-bottom: 20px; font-size: 16px; font-family: 'Quicksand'; outline: none; }
+        .modal-content p { font-size: 13px; color: #7f8c8d; margin-bottom: 20px; }
+        .date-input { width: 100%; padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; margin-bottom: 20px; font-size: 16px; }
         .btn-group { display: flex; gap: 10px; }
-        .btn-confirm { flex: 1; background-color: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
-        .btn-cancel { flex: 1; background-color: #e74c3c; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+        .btn-confirm { flex: 1; background-color: #3498db; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; }
+        .btn-cancel { flex: 1; background-color: #e74c3c; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: 700; }
 
         /* --- FOOTER --- */
-        .footer { text-align: center; margin-top: 20px; padding-bottom: 30px; font-weight: 700; color: #2c3e50; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; }
+        .footer { text-align: center; margin-top: 10px; padding-bottom: 30px; font-weight: 700; color: #2c3e50; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; }
         .footer img { height: 35px; width: auto; }
     </style>
 </head>
 <body>
 
     <div class="container">
+        
         <div class="header">
             <div class="mascot-header">
                 <img id="mascotImage" src="wake.png" alt="Maskot">
@@ -63,7 +62,7 @@
             </div>
         </div>
 
-        <button id="btnOpenModal" class="btn-download-trigger">📊 Unduh Laporan Harian (Excel)</button>
+        <button id="btnOpenModal" class="btn-download-trigger">📊 Unduh Laporan Harian</button>
 
         <div class="card">
             <div class="summary-list">
@@ -75,35 +74,35 @@
             </div>
         </div>
 
-        <div class="card"><div class="chart-header">🌡️🌤️ Suhu (°C)</div><div class="chart-container"><canvas id="chartSuhu"></canvas></div></div>
+        <div class="card"><div class="chart-header">🌡️ Suhu Air (°C)</div><div class="chart-container"><canvas id="chartSuhu"></canvas></div></div>
         <div class="card"><div class="chart-header">💧 pH Air</div><div class="chart-container"><canvas id="chartPH"></canvas></div></div>
         <div class="card"><div class="chart-header">🟤 Kekeruhan (NTU)</div><div class="chart-container"><canvas id="chartKekeruhan"></canvas></div></div>
-        <div class="card"><div class="chart-header">💨 Kelembaban (%)</div><div class="chart-container"><canvas id="chartKelembaban"></canvas></div></div>
+        <div class="card"><div class="chart-header">💨 Kelembaban Udara (%)</div><div class="chart-container"><canvas id="chartKelembaban"></canvas></div></div>
 
         <div class="footer">
-            <img src="Umrah.PNG" alt="Logo UMRAH">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_UMRAH.png" alt="Logo UMRAH">
             <span>Universitas Maritim Raja Ali Haji</span>
         </div>
+
     </div>
 
     <div id="downloadModal" class="modal">
         <div class="modal-content">
             <h3>Pilih Tanggal Laporan</h3>
-            <p>Data penuh selama satu hari (interval 15 menit). Data hari ini baru akan tersedia besok jam 00:00.</p>
-            
+            <p>Data hari ini baru akan tersedia untuk diunduh besok jam 00:00.</p>
             <input type="date" id="datePicker" class="date-input">
-            
             <div class="btn-group">
                 <button id="btnCancel" class="btn-cancel">Batal</button>
-                <button id="btnConfirmDownload" class="btn-confirm">Unduh Data</button>
+                <button id="btnConfirmDownload" class="btn-confirm">Unduh CSV</button>
             </div>
         </div>
     </div>
 
-   <script type="module">
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, onValue, get, child, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
+        // Konfigurasi Firebase Anda
         const firebaseConfig = {
             apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
             authDomain: "kualitas-air-74caa.firebaseapp.com",
@@ -117,86 +116,76 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // --- KONFIGURASI CHART ---
+        // --- INISIALISASI GRAFIK ---
         const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: false } } };
-        function createChart(id, color, label) { return new Chart(document.getElementById(id), { type: 'line', data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.4, pointRadius: 3 }] }, options: commonOptions }); }
+        function createChart(id, color, label) { return new Chart(document.getElementById(id), { type: 'line', data: { labels: [], datasets: [{ label: label, data: [], borderColor: color, tension: 0.4, pointRadius: 2 }] }, options: commonOptions }); }
         
-        const chartSuhu = createChart('chartSuhu', '#3498db', 'Suhu'); 
-        const chartPH = createChart('chartPH', '#8e44ad', 'pH'); 
-        const chartKekeruhan = createChart('chartKekeruhan', '#8b4513', 'Kekeruhan'); 
-        const chartKelembaban = createChart('chartKelembaban', '#1abc9c', 'Kelembaban');
+        const chartSuhu = createChart('chartSuhu', '#e74c3c', 'Suhu Air'); 
+        const chartPH = createChart('chartPH', '#9b59b6', 'pH Air'); 
+        const chartKekeruhan = createChart('chartKekeruhan', '#e67e22', 'Kekeruhan'); 
+        const chartKelembaban = createChart('chartKelembaban', '#3498db', 'Kelembaban');
 
-        // Fungsi penambah titik data
         function pushData(chart, time, val) { 
             chart.data.labels.push(time); 
             chart.data.datasets[0].data.push(val); 
-            // Batasi agar grafik tidak terlalu padat (misal maksimal 24 titik untuk 24 jam)
-            if(chart.data.labels.length > 24) { 
+            if(chart.data.labels.length > 24) {  // Menampilkan maksimal 24 titik grafik
                 chart.data.labels.shift(); 
                 chart.data.datasets[0].data.shift(); 
             } 
             chart.update(); 
         }
 
-        // --- LOGIKA MASKOT ---
+        // --- ANIMASI MASKOT ---
         let lastDataTime = Date.now();
         function updateMascot(isActive) {
             const img = document.getElementById('mascotImage');
             if(isActive) { img.src = 'wake.png'; } else { img.src = 'sleep.png'; }
         }
 
-        // =========================================================
-        // BAGIAN BARU: MENGAMBIL DATA 24 JAM SAAT WEB DIBUKA
-        // =========================================================
-        const hariIni = new Date().toISOString().split('T')[0]; // Mendapatkan YYYY-MM-DD hari ini
-        const historyRef = ref(db, `History/${hariIni}`);
-
+        // ===============================================
+        // 1. MENGAMBIL DATA RIWAYAT UNTUK GRAFIK AWAL
+        // ===============================================
+        const historyRef = query(ref(db, 'keramba/logs'), limitToLast(24));
         get(historyRef).then((snapshot) => {
             if (snapshot.exists()) {
-                const dataHarian = snapshot.val();
-                
-                // Kosongkan grafik bawaan
+                // Bersihkan grafik
                 chartSuhu.data.labels = []; chartSuhu.data.datasets[0].data = [];
                 chartPH.data.labels = []; chartPH.data.datasets[0].data = [];
                 chartKekeruhan.data.labels = []; chartKekeruhan.data.datasets[0].data = [];
                 chartKelembaban.data.labels = []; chartKelembaban.data.datasets[0].data = [];
 
-                // Looping memasukkan data seharian ke grafik
-                Object.keys(dataHarian).forEach(timeKey => {
-                    const val = dataHarian[timeKey];
-                    const jamMenit = timeKey.substring(0, 5); // Ambil format HH:mm
+                snapshot.forEach((childSnapshot) => {
+                    const val = childSnapshot.val();
+                    const jamMenit = val.waktu ? val.waktu.substring(0, 5) : "--:--"; 
 
-                    // Cek agar data tidak kosong/error
                     if(val.suhu_air != null) { chartSuhu.data.labels.push(jamMenit); chartSuhu.data.datasets[0].data.push(val.suhu_air); }
                     if(val.ph != null) { chartPH.data.labels.push(jamMenit); chartPH.data.datasets[0].data.push(val.ph); }
                     if(val.kekeruhan != null) { chartKekeruhan.data.labels.push(jamMenit); chartKekeruhan.data.datasets[0].data.push(val.kekeruhan); }
                     if(val.kelembaban != null) { chartKelembaban.data.labels.push(jamMenit); chartKelembaban.data.datasets[0].data.push(val.kelembaban); }
                 });
                 
-                // Render grafik
                 chartSuhu.update(); chartPH.update(); chartKekeruhan.update(); chartKelembaban.update();
             }
         });
 
-        // =========================================================
-        // PANTAU DATA REAL-TIME (Untuk update indikator angka teks)
-        // =========================================================
-        const sensorRef = ref(db, 'Monitoring');
+        // ===============================================
+        // 2. PANTAU DATA REAL-TIME (KERAMBA/LATEST)
+        // ===============================================
+        const sensorRef = ref(db, 'keramba/latest');
         onValue(sensorRef, (snapshot) => {
             const data = snapshot.val();
             if(data) {
                 lastDataTime = Date.now(); updateMascot(true);
                 
-                document.getElementById('val-suhu-air').innerText = (data.suhu_air || 0) + " °C";
-                document.getElementById('val-ph').innerText = (data.ph || 0);
-                document.getElementById('val-kekeruhan').innerText = (data.kekeruhan || 0) + " NTU";
-                document.getElementById('val-suhu-udara').innerText = (data.suhu_udara || 0) + " °C";
-                document.getElementById('val-kelembaban').innerText = (data.kelembaban || 0) + " %";
+                document.getElementById('val-suhu-air').innerText = (data.suhu_air || "--") + " °C";
+                document.getElementById('val-ph').innerText = (data.ph || "--");
+                document.getElementById('val-kekeruhan').innerText = (data.kekeruhan || "--") + " NTU";
+                document.getElementById('val-suhu-udara').innerText = (data.suhu_udara || "--") + " °C";
+                document.getElementById('val-kelembaban').innerText = (data.kelembaban || "--") + " %";
                 
-                const now = new Date(); const time = now.getHours().toString().padStart(2,'0') + ":" + now.getMinutes().toString().padStart(2,'0');
-                document.getElementById('last-update').innerText = "Update: " + time;
+                const time = data.waktu ? data.waktu.substring(0, 5) : "--:--";
+                document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
                 
-                // Tambahkan titik baru ke grafik secara real-time
                 pushData(chartSuhu, time, data.suhu_air); 
                 pushData(chartPH, time, data.ph); 
                 pushData(chartKekeruhan, time, data.kekeruhan); 
@@ -204,18 +193,18 @@
             }
         });
 
-        // Maskot tidur jika 30 detik tidak ada data
-        setInterval(() => { if(Date.now() - lastDataTime > 30000) updateMascot(false); }, 10000);
+        setInterval(() => { if(Date.now() - lastDataTime > 65000) updateMascot(false); }, 10000);
 
-        // ==========================================
-        // --- LOGIKA FITUR UNDUH DATA (TETAP ADA) ---
-        // ==========================================
+        // ===============================================
+        // 3. FITUR UNDUH LAPORAN HARIAN (CSV)
+        // ===============================================
         const modal = document.getElementById("downloadModal");
         const btnOpen = document.getElementById("btnOpenModal");
         const btnCancel = document.getElementById("btnCancel");
         const btnConfirm = document.getElementById("btnConfirmDownload");
         const datePicker = document.getElementById("datePicker");
 
+        // Set batasan kalender maksimal kemarin
         const today = new Date();
         const yesterday = new Date(today);
         yesterday.setDate(yesterday.getDate() - 1);
@@ -225,34 +214,45 @@
         if(btnCancel) btnCancel.onclick = () => { modal.style.display = "none"; }
 
         if(btnConfirm) btnConfirm.onclick = () => {
-            const selectedDate = datePicker.value;
+            const selectedDate = datePicker.value; // Output HTML: YYYY-MM-DD
             if(!selectedDate) { alert("Silakan pilih tanggal terlebih dahulu!"); return; }
 
-            btnConfirm.innerText = "Mengambil Data..."; btnConfirm.disabled = true;
+            // Format tanggal ESP32 adalah DD/MM/YYYY
+            const dateParts = selectedDate.split('-');
+            const targetDateESP32 = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
-            get(child(ref(db), `History/${selectedDate}`)).then((snapshot) => {
+            btnConfirm.innerText = "Mencari Data..."; btnConfirm.disabled = true;
+
+            get(ref(db, 'keramba/logs')).then((snapshot) => {
                 if (snapshot.exists()) {
-                    const dataHarian = snapshot.val();
-                    let csvContent = "data:text/csv;charset=utf-8,Waktu,Suhu Air (°C),pH,Kekeruhan (NTU),Suhu Udara (°C),Kelembaban (%)\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu Air (C),pH,Kekeruhan (NTU),Suhu Udara (C),Kelembaban (%)\n";
+                    let dataFound = false;
 
-                    for (const timeKey in dataHarian) {
-                        const row = dataHarian[timeKey];
-                        csvContent += `${timeKey},${row.suhu_air || ''},${row.ph || ''},${row.kekeruhan || ''},${row.suhu_udara || ''},${row.kelembaban || ''}\n`;
+                    snapshot.forEach((childSnapshot) => {
+                        const row = childSnapshot.val();
+                        if(row.tanggal === targetDateESP32) {
+                            dataFound = true;
+                            csvContent += `${row.tanggal},${row.waktu},${row.suhu_air || ''},${row.ph || ''},${row.kekeruhan || ''},${row.suhu_udara || ''},${row.kelembaban || ''}\n`;
+                        }
+                    });
+
+                    if(dataFound) {
+                        const encodedUri = encodeURI(csvContent);
+                        const link = document.createElement("a");
+                        link.setAttribute("href", encodedUri);
+                        link.setAttribute("download", `Laporan_Kualitas_Air_${selectedDate}.csv`);
+                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                        modal.style.display = "none";
+                    } else {
+                        alert(`Data tanggal ${targetDateESP32} belum tersedia atau alat mati pada hari tersebut.`);
                     }
-
-                    const encodedUri = encodeURI(csvContent);
-                    const link = document.createElement("a");
-                    link.setAttribute("href", encodedUri);
-                    link.setAttribute("download", `Data_KualitasAir_${selectedDate}.csv`);
-                    document.body.appendChild(link); link.click(); document.body.removeChild(link);
-                    modal.style.display = "none";
                 } else {
-                    alert(`Tidak ada data rekaman pada tanggal ${selectedDate}.`);
+                    alert("Database masih kosong, belum ada rekaman sama sekali.");
                 }
             }).catch((error) => {
-                alert("Terjadi kesalahan jaringan."); console.error(error);
+                alert("Terjadi kesalahan koneksi internet."); console.error(error);
             }).finally(() => {
-                btnConfirm.innerText = "Unduh Data"; btnConfirm.disabled = false;
+                btnConfirm.innerText = "Unduh CSV"; btnConfirm.disabled = false;
             });
         }
     </script>
