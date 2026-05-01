@@ -21,6 +21,15 @@
         .header-text h1 { font-size: 18px; font-weight: 700; color: #2c3e50; margin-bottom: 2px; }
         .header-text p { font-size: 12px; color: #7f8c8d; }
 
+        /* --- STATUS PAKAN & TOMBOL UNDUH --- */
+        .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+        .feed-status-card, .btn-download-trigger { min-height: 82px; border-radius: 18px; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        .feed-status-card { display: flex; flex-direction: column; justify-content: center; padding: 12px 14px; background: rgba(39, 174, 96, 0.12); border: 1px solid rgba(39, 174, 96, 0.18); color: #1e8449; }
+        .feed-status-card.feed-reduce { background: rgba(231, 76, 60, 0.16); border-color: rgba(231, 76, 60, 0.28); color: #c0392b; }
+        .feed-label { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+        .feed-value { font-size: 18px; font-weight: 700; line-height: 1.15; }
+        .btn-download-trigger { background-color: #27ae60; color: white; border: none; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-align: center; line-height: 1.25; }
+
         /* --- KARTU DATA --- */
         .card { background-color: #ffffff; border-radius: 20px; padding: 20px; box-shadow: 0 8px 15px rgba(0, 0, 0, 0.03); }
         .summary-list { display: flex; flex-direction: column; gap: 12px; }
@@ -32,8 +41,7 @@
         .chart-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-weight: 700; color: #2c3e50; font-size: 14px; }
         .chart-container { position: relative; height: 180px; width: 100%; }
 
-        /* --- TOMBOL UNDUH & MODAL --- */
-        .btn-download-trigger { background-color: #27ae60; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; width: 100%; box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3); }
+        /* --- MODAL --- */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
         .modal-content { background-color: #fff; padding: 25px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; }
         .modal-content h3 { margin-bottom: 10px; color: #2c3e50; }
@@ -62,26 +70,31 @@
             </div>
         </div>
 
-        <button id="btnOpenModal" class="btn-download-trigger">📊 Unduh Laporan Harian</button>
+        <div class="action-row">
+            <div id="feedStatusCard" class="feed-status-card">
+                <div class="feed-label">Status Pakan</div>
+                <div id="feedStatusValue" class="feed-value">NORMAL</div>
+            </div>
+
+            <button id="btnOpenModal" class="btn-download-trigger">
+                <span>📊</span>
+                <span>Unduh Laporan Harian</span>
+            </button>
+        </div>
 
         <div class="card">
             <div class="summary-list">
-                <div class="summary-item"><div class="item-left"><span class="item-icon">🌡️</span><span>Suhu Air</span></div><span id="val-suhu-air">-- °C</span></div>
-                <div class="summary-item"><div class="item-left"><span class="item-icon">💧</span><span>pH Air</span></div><span id="val-ph">--</span></div>
+                <div class="summary-item"><div class="item-left"><span class="item-icon">🌡️</span><span>Suhu</span></div><span id="val-suhu">-- °C</span></div>
+                <div class="summary-item"><div class="item-left"><span class="item-icon">💧</span><span>pH</span></div><span id="val-ph">--</span></div>
+                <div class="summary-item"><div class="item-left"><span class="item-icon">🧂</span><span>Salinitas</span></div><span id="val-salinitas">-- g/L</span></div>
                 <div class="summary-item"><div class="item-left"><span class="item-icon">🟤</span><span>Kekeruhan</span></div><span id="val-kekeruhan">-- NTU</span></div>
-                <div class="summary-item"><div class="item-left"><span class="item-icon">🌤️</span><span>Suhu Udara</span></div><span id="val-suhu-udara">-- °C</span></div>
-                <div class="summary-item"><div class="item-left"><span class="item-icon">💨</span><span>Kelembaban</span></div><span id="val-kelembaban">-- %</span></div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="chart-header">🌡️🌤️ Suhu Air & Udara (°C)</div>
-            <div class="chart-container"><canvas id="chartSuhu"></canvas></div>
-        </div>
-        
-        <div class="card"><div class="chart-header">💧 pH Air</div><div class="chart-container"><canvas id="chartPH"></canvas></div></div>
+        <div class="card"><div class="chart-header">🌡️ Suhu (°C)</div><div class="chart-container"><canvas id="chartSuhu"></canvas></div></div>
+        <div class="card"><div class="chart-header">💧 pH</div><div class="chart-container"><canvas id="chartPH"></canvas></div></div>
+        <div class="card"><div class="chart-header">🧂 Salinitas (g/L)</div><div class="chart-container"><canvas id="chartSalinitas"></canvas></div></div>
         <div class="card"><div class="chart-header">🟤 Kekeruhan (NTU)</div><div class="chart-container"><canvas id="chartKekeruhan"></canvas></div></div>
-        <div class="card"><div class="chart-header">💨 Kelembaban Udara (%)</div><div class="chart-container"><canvas id="chartKelembaban"></canvas></div></div>
 
         <div class="footer">
             <img src="Umrah.PNG" alt="Umrah">
@@ -104,7 +117,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, child, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, query, limitToLast } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
@@ -120,7 +133,12 @@
         const db = getDatabase(app);
 
         // --- INISIALISASI GRAFIK ---
-        const commonOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: false } } };
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { x: { grid: { display: false } }, y: { beginAtZero: false } }
+        };
         
         function createChart(id, color, label) { 
             return new Chart(document.getElementById(id), { 
@@ -129,56 +147,66 @@
                 options: commonOptions 
             }); 
         }
-        
-        // Pembuatan Grafik Gabungan Suhu
-        const chartSuhu = new Chart(document.getElementById('chartSuhu'), {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [
-                    { label: 'Suhu Air', data: [], borderColor: '#e74c3c', tension: 0.4, pointRadius: 2 },
-                    { label: 'Suhu Udara', data: [], borderColor: '#f39c12', tension: 0.4, pointRadius: 2 } // Garis warna oranye
-                ]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { 
-                    legend: { display: true, position: 'top', labels: { boxWidth: 12, font: {size: 11} } } // Menampilkan keterangan warna
-                },
-                scales: { x: { grid: { display: false } }, y: { beginAtZero: false } }
-            }
-        });
 
-        const chartPH = createChart('chartPH', '#9b59b6', 'pH Air'); 
-        const chartKekeruhan = createChart('chartKekeruhan', '#e67e22', 'Kekeruhan'); 
-        const chartKelembaban = createChart('chartKelembaban', '#3498db', 'Kelembaban');
+        const chartSuhu = createChart('chartSuhu', '#e74c3c', 'Suhu');
+        const chartPH = createChart('chartPH', '#9b59b6', 'pH');
+        const chartSalinitas = createChart('chartSalinitas', '#16a085', 'Salinitas');
+        const chartKekeruhan = createChart('chartKekeruhan', '#e67e22', 'Kekeruhan');
 
-        // Fungsi khusus untuk mendorong data ke 1 garis (pH, kekeruhan, dll)
-        function pushDataSingle(chart, time, val) { 
+        function isValidValue(value) {
+            return value !== undefined && value !== null && value !== "";
+        }
+
+        function formatValue(value, suffix = "") {
+            return isValidValue(value) ? `${value}${suffix}` : `--${suffix}`;
+        }
+
+        function getSuhu(data) {
+            return data.suhu ?? data.suhu_air;
+        }
+
+        // Fungsi untuk mendorong data ke grafik tunggal
+        function pushDataSingle(chart, time, val) {
+            if (!isValidValue(val)) return;
+
             chart.data.labels.push(time); 
             chart.data.datasets[0].data.push(val); 
-            if(chart.data.labels.length > 24) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); } 
+
+            if (chart.data.labels.length > 24) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+
             chart.update(); 
         }
 
-        // Fungsi khusus untuk mendorong 2 data sekaligus ke grafik Suhu
-        function pushDataDual(chart, time, valAir, valUdara) {
+        function clearChart(chart) {
+            chart.data.labels = [];
+            chart.data.datasets[0].data = [];
+        }
+
+        function pushHistoryData(chart, time, val) {
+            if (!isValidValue(val)) return;
             chart.data.labels.push(time);
-            chart.data.datasets[0].data.push(valAir);
-            chart.data.datasets[1].data.push(valUdara);
-            if(chart.data.labels.length > 24) {
-                chart.data.labels.shift();
-                chart.data.datasets[0].data.shift();
-                chart.data.datasets[1].data.shift();
-            }
-            chart.update();
+            chart.data.datasets[0].data.push(val);
+        }
+
+        // --- STATUS PAKAN ---
+        function updateStatusPakan(rawStatus) {
+            const card = document.getElementById('feedStatusCard');
+            const value = document.getElementById('feedStatusValue');
+            const status = (rawStatus ?? 'NORMAL').toString().trim().toUpperCase().replace(/_/g, ' ');
+            const isKurangiPakan = status.includes('KURANGI');
+
+            value.innerText = isKurangiPakan ? 'KURANGI PAKAN' : 'NORMAL';
+            card.classList.toggle('feed-reduce', isKurangiPakan);
         }
 
         // --- ANIMASI MASKOT ---
         let lastDataTime = Date.now();
         function updateMascot(isActive) {
             const img = document.getElementById('mascotImage');
-            if(isActive) { img.src = 'wake.png'; } else { img.src = 'sleep.png'; }
+            if (isActive) { img.src = 'wake.png'; } else { img.src = 'sleep.png'; }
         }
 
         // ===============================================
@@ -187,27 +215,25 @@
         const historyRef = query(ref(db, 'keramba/logs'), limitToLast(24));
         get(historyRef).then((snapshot) => {
             if (snapshot.exists()) {
-                // Bersihkan grafik
-                chartSuhu.data.labels = []; chartSuhu.data.datasets[0].data = []; chartSuhu.data.datasets[1].data = [];
-                chartPH.data.labels = []; chartPH.data.datasets[0].data = [];
-                chartKekeruhan.data.labels = []; chartKekeruhan.data.datasets[0].data = [];
-                chartKelembaban.data.labels = []; chartKelembaban.data.datasets[0].data = [];
+                clearChart(chartSuhu);
+                clearChart(chartPH);
+                clearChart(chartSalinitas);
+                clearChart(chartKekeruhan);
 
                 snapshot.forEach((childSnapshot) => {
                     const val = childSnapshot.val();
-                    const jamMenit = val.waktu ? val.waktu.substring(0, 5) : "--:--"; 
+                    const jamMenit = val.waktu ? val.waktu.substring(0, 5) : "--:--";
 
-                    if(val.suhu_air != null && val.suhu_udara != null) { 
-                        chartSuhu.data.labels.push(jamMenit); 
-                        chartSuhu.data.datasets[0].data.push(val.suhu_air); 
-                        chartSuhu.data.datasets[1].data.push(val.suhu_udara); 
-                    }
-                    if(val.ph != null) { chartPH.data.labels.push(jamMenit); chartPH.data.datasets[0].data.push(val.ph); }
-                    if(val.kekeruhan != null) { chartKekeruhan.data.labels.push(jamMenit); chartKekeruhan.data.datasets[0].data.push(val.kekeruhan); }
-                    if(val.kelembaban != null) { chartKelembaban.data.labels.push(jamMenit); chartKelembaban.data.datasets[0].data.push(val.kelembaban); }
+                    pushHistoryData(chartSuhu, jamMenit, getSuhu(val));
+                    pushHistoryData(chartPH, jamMenit, val.ph);
+                    pushHistoryData(chartSalinitas, jamMenit, val.salinitas);
+                    pushHistoryData(chartKekeruhan, jamMenit, val.kekeruhan);
                 });
                 
-                chartSuhu.update(); chartPH.update(); chartKekeruhan.update(); chartKelembaban.update();
+                chartSuhu.update();
+                chartPH.update();
+                chartSalinitas.update();
+                chartKekeruhan.update();
             }
         });
 
@@ -217,27 +243,30 @@
         const sensorRef = ref(db, 'keramba/latest');
         onValue(sensorRef, (snapshot) => {
             const data = snapshot.val();
-            if(data) {
-                lastDataTime = Date.now(); updateMascot(true);
+            if (data) {
+                lastDataTime = Date.now();
+                updateMascot(true);
+
+                const suhu = getSuhu(data);
+                const statusPakan = data.status_pakan ?? data.statusPakan ?? 'NORMAL';
+                updateStatusPakan(statusPakan);
                 
-                document.getElementById('val-suhu-air').innerText = (data.suhu_air || "--") + " °C";
-                document.getElementById('val-ph').innerText = (data.ph || "--");
-                document.getElementById('val-kekeruhan').innerText = (data.kekeruhan || "--") + " NTU";
-                document.getElementById('val-suhu-udara').innerText = (data.suhu_udara || "--") + " °C";
-                document.getElementById('val-kelembaban').innerText = (data.kelembaban || "--") + " %";
+                document.getElementById('val-suhu').innerText = formatValue(suhu, " °C");
+                document.getElementById('val-ph').innerText = formatValue(data.ph);
+                document.getElementById('val-salinitas').innerText = formatValue(data.salinitas, " g/L");
+                document.getElementById('val-kekeruhan').innerText = formatValue(data.kekeruhan, " NTU");
                 
                 const time = data.waktu ? data.waktu.substring(0, 5) : "--:--";
                 document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
                 
-                // Mendorong data ke grafik
-                pushDataDual(chartSuhu, time, data.suhu_air, data.suhu_udara); 
-                pushDataSingle(chartPH, time, data.ph); 
-                pushDataSingle(chartKekeruhan, time, data.kekeruhan); 
-                pushDataSingle(chartKelembaban, time, data.kelembaban);
+                pushDataSingle(chartSuhu, time, suhu);
+                pushDataSingle(chartPH, time, data.ph);
+                pushDataSingle(chartSalinitas, time, data.salinitas);
+                pushDataSingle(chartKekeruhan, time, data.kekeruhan);
             }
         });
 
-        setInterval(() => { if(Date.now() - lastDataTime > 65000) updateMascot(false); }, 10000);
+        setInterval(() => { if (Date.now() - lastDataTime > 65000) updateMascot(false); }, 10000);
 
         // ===============================================
         // 3. FITUR UNDUH LAPORAN HARIAN
@@ -253,37 +282,41 @@
         yesterday.setDate(yesterday.getDate() - 1);
         datePicker.max = yesterday.toISOString().split('T')[0];
 
-        if(btnOpen) btnOpen.onclick = () => { modal.style.display = "flex"; }
-        if(btnCancel) btnCancel.onclick = () => { modal.style.display = "none"; }
+        if (btnOpen) btnOpen.onclick = () => { modal.style.display = "flex"; };
+        if (btnCancel) btnCancel.onclick = () => { modal.style.display = "none"; };
 
-        if(btnConfirm) btnConfirm.onclick = () => {
+        if (btnConfirm) btnConfirm.onclick = () => {
             const selectedDate = datePicker.value; 
-            if(!selectedDate) { alert("Silakan pilih tanggal terlebih dahulu!"); return; }
+            if (!selectedDate) { alert("Silakan pilih tanggal terlebih dahulu!"); return; }
 
             const dateParts = selectedDate.split('-');
             const targetDateESP32 = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
 
-            btnConfirm.innerText = "Mencari Data..."; btnConfirm.disabled = true;
+            btnConfirm.innerText = "Mencari Data...";
+            btnConfirm.disabled = true;
 
             get(ref(db, 'keramba/logs')).then((snapshot) => {
                 if (snapshot.exists()) {
-                    let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu Air (C),pH,Kekeruhan (NTU),Suhu Udara (C),Kelembaban (%)\n";
+                    let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu (C),pH,Salinitas (g/L),Kekeruhan (NTU)\n";
                     let dataFound = false;
 
                     snapshot.forEach((childSnapshot) => {
                         const row = childSnapshot.val();
-                        if(row.tanggal === targetDateESP32) {
+                        if (row.tanggal === targetDateESP32) {
                             dataFound = true;
-                            csvContent += `${row.tanggal},${row.waktu},${row.suhu_air || ''},${row.ph || ''},${row.kekeruhan || ''},${row.suhu_udara || ''},${row.kelembaban || ''}\n`;
+                            const suhu = getSuhu(row);
+                            csvContent += `${row.tanggal},${row.waktu},${suhu ?? ''},${row.ph ?? ''},${row.salinitas ?? ''},${row.kekeruhan ?? ''}\n`;
                         }
                     });
 
-                    if(dataFound) {
+                    if (dataFound) {
                         const encodedUri = encodeURI(csvContent);
                         const link = document.createElement("a");
                         link.setAttribute("href", encodedUri);
                         link.setAttribute("download", `Laporan_Kualitas_Air_${selectedDate}.csv`);
-                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
                         modal.style.display = "none";
                     } else {
                         alert(`Data tanggal ${targetDateESP32} belum tersedia atau alat mati pada hari tersebut.`);
@@ -292,11 +325,13 @@
                     alert("Database masih kosong, belum ada rekaman sama sekali.");
                 }
             }).catch((error) => {
-                alert("Terjadi kesalahan koneksi internet."); console.error(error);
+                alert("Terjadi kesalahan koneksi internet.");
+                console.error(error);
             }).finally(() => {
-                btnConfirm.innerText = "Unduh CSV"; btnConfirm.disabled = false;
+                btnConfirm.innerText = "Unduh CSV";
+                btnConfirm.disabled = false;
             });
-        }
+        };
     </script>
 </body>
 </html>
