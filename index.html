@@ -260,22 +260,26 @@
         });
 
         // ===============================================
+        // ===============================================
         // 2. PANTAU DATA REAL-TIME & UPDATE STATUS
         // ===============================================
+        let lastChartUpdateTime = 0; // Variabel penanda waktu update grafik terakhir
+        const chartUpdateInterval = 15 * 60 * 1000; // 15 menit dalam milidetik
+
         const sensorRef = ref(db, 'keramba/latest');
         onValue(sensorRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
-                lastDataTime = Date.now();
+                const now = Date.now();
+                lastDataTime = now;
                 updateMascot(true);
 
                 const suhu = getSuhu(data);
                 const ph = data.ph;
                 const salinitas = data.salinitas;
 
-                // JALANKAN LOGIKA STATUS PAKAN BERDASARKAN PARAMETER
+                // 1. UPDATE ANGKA REAL-TIME (Setiap ada data masuk)
                 updateStatusPakanLogic(suhu, ph, salinitas);
-                
                 document.getElementById('val-suhu').innerText = formatValue(suhu, " °C");
                 document.getElementById('val-ph').innerText = formatValue(ph);
                 document.getElementById('val-salinitas').innerText = formatValue(salinitas, " g/L");
@@ -284,13 +288,18 @@
                 const time = data.waktu ? data.waktu.substring(0, 5) : "--:--";
                 document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
                 
-                pushDataSingle(chartSuhu, time, suhu);
-                pushDataSingle(chartPH, time, ph);
-                pushDataSingle(chartSalinitas, time, salinitas);
-                pushDataSingle(chartKekeruhan, time, data.kekeruhan);
+                // 2. UPDATE GRAFIK (Hanya setiap 15 menit sekali)
+                if (now - lastChartUpdateTime >= chartUpdateInterval) {
+                    pushDataSingle(chartSuhu, time, suhu);
+                    pushDataSingle(chartPH, time, ph);
+                    pushDataSingle(chartSalinitas, time, salinitas);
+                    pushDataSingle(chartKekeruhan, time, data.kekeruhan);
+                    
+                    lastChartUpdateTime = now; // Perbarui penanda waktu terakhir grafik diupdate
+                    console.log("Grafik diupdate pada: " + time);
+                }
             }
         });
-
         setInterval(() => { if (Date.now() - lastDataTime > 65000) updateMascot(false); }, 10000);
 
         // ===============================================
