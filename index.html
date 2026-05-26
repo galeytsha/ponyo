@@ -1,102 +1,446 @@
-<!-- ========================= -->
-<!-- SUMMARY PARAMETER -->
-<!-- ========================= -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Kualitas Air - Umrah</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="card">
-    <div class="summary-list">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
 
-        <div id="card-suhu" class="summary-item param-normal">
-            <div class="item-left">
-                <span class="item-icon">🌡️</span>
-                <span>Suhu</span>
-            </div>
-            <span id="val-suhu">-- °C</span>
+        body {
+            background-color: #f7f9fc;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            background: white;
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+
+        .mascot-header {
+            position: relative;
+            width: 100px;
+            flex-shrink: 0;
+        }
+
+        .mascot-header img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .header-text {
+            text-align: left;
+        }
+
+        .header-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+
+        .header-text p {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        /* STATUS PAKAN */
+        .action-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .feed-status-card,
+        .btn-download-trigger {
+            min-height: 82px;
+            border-radius: 18px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+
+        .feed-status-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 12px 14px;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+            color: #2c3e50;
+            transition: all 0.3s ease;
+        }
+
+        .feed-stop {
+            background: rgba(231, 76, 60, 0.16);
+            border-color: rgba(231, 76, 60, 0.28);
+            color: #c0392b;
+        }
+
+        .feed-label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+        }
+
+        .feed-value {
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.15;
+        }
+
+        .btn-download-trigger {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+            line-height: 1.25;
+        }
+
+        /* KARTU DATA */
+        .card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .summary-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 700;
+            color: #4a4a4a;
+            padding: 10px 12px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .param-normal {
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .param-warning {
+            background: rgba(231, 76, 60, 0.16);
+            border: 1px solid rgba(231, 76, 60, 0.28);
+            color: #c0392b;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-icon {
+            font-size: 22px;
+            width: 28px;
+            text-align: center;
+        }
+
+        /* GRAFIK */
+        .chart-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 180px;
+            width: 100%;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .modal-content p {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 20px;
+        }
+
+        .date-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ecf0f1;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-confirm {
+            flex: 1;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        .btn-cancel {
+            flex: 1;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 700;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 10px;
+            padding-bottom: 30px;
+            font-weight: 700;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .footer img {
+            height: 35px;
+            width: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="mascot-header">
+            <img id="mascotImage" src="wake.png" alt="Maskot">
         </div>
 
-        <div id="card-ph" class="summary-item param-normal">
-            <div class="item-left">
-                <span class="item-icon">💧</span>
-                <span>pH</span>
-            </div>
-            <span id="val-ph">--</span>
+        <div class="header-text">
+            <h1>Monitor Kualitas Air</h1>
+            <p id="last-update">Menunggu data...</p>
+        </div>
+    </div>
+
+    <div class="action-row">
+
+        <div id="feedStatusCard" class="feed-status-card">
+            <div class="feed-label">Status Pakan</div>
+            <div id="feedStatusValue" class="feed-value">MENUNGGU...</div>
         </div>
 
-        <div id="card-salinitas" class="summary-item param-normal">
-            <div class="item-left">
-                <span class="item-icon">🧂</span>
-                <span>Salinitas</span>
-            </div>
-            <span id="val-salinitas">-- g/L</span>
-        </div>
+        <button id="btnOpenModal" class="btn-download-trigger">
+            <span>📊</span>
+            <span>Unduh Laporan Harian</span>
+        </button>
 
-        <div id="card-kekeruhan" class="summary-item param-normal">
-            <div class="item-left">
-                <span class="item-icon">🟤</span>
-                <span>Kekeruhan</span>
+    </div>
+
+    <!-- PARAMETER -->
+    <div class="card">
+
+        <div class="summary-list">
+
+            <div id="card-suhu" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">🌡️</span>
+                    <span>Suhu</span>
+                </div>
+                <span id="val-suhu">-- °C</span>
             </div>
-            <span id="val-kekeruhan">-- NTU</span>
+
+            <div id="card-ph" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">💧</span>
+                    <span>pH</span>
+                </div>
+                <span id="val-ph">--</span>
+            </div>
+
+            <div id="card-salinitas" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">🧂</span>
+                    <span>Salinitas</span>
+                </div>
+                <span id="val-salinitas">-- g/L</span>
+            </div>
+
+            <div id="card-kekeruhan" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">🟤</span>
+                    <span>Kekeruhan</span>
+                </div>
+                <span id="val-kekeruhan">-- NTU</span>
+            </div>
+
         </div>
 
     </div>
+
+    <!-- GRAFIK -->
+    <div class="card">
+        <div class="chart-header">🌡️ Suhu (°C)</div>
+        <div class="chart-container">
+            <canvas id="chartSuhu"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="chart-header">💧 pH</div>
+        <div class="chart-container">
+            <canvas id="chartPH"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="chart-header">🧂 Salinitas (g/L)</div>
+        <div class="chart-container">
+            <canvas id="chartSalinitas"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="chart-header">🟤 Kekeruhan (NTU)</div>
+        <div class="chart-container">
+            <canvas id="chartKekeruhan"></canvas>
+        </div>
+    </div>
+
 </div>
 
 
-<style>
-
-/* ========================= */
-/* PARAMETER NORMAL */
-/* ========================= */
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 15px;
-    font-weight: 700;
-    color: #4a4a4a;
-    padding: 10px 12px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
-    background: #ffffff;
-}
-
-.param-normal {
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.05);
-}
-
-.param-warning {
-    background: rgba(231, 76, 60, 0.16);
-    border: 1px solid rgba(231, 76, 60, 0.28);
-    color: #c0392b;
-}
-
-/* ========================= */
-/* STATUS PAKAN */
-/* ========================= */
-
-.feed-status-card {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 12px 14px;
-    background: #ffffff;
-    border: 1px solid rgba(0,0,0,0.05);
-    color: #2c3e50;
-    transition: all 0.3s ease;
-}
-
-.feed-stop {
-    background: rgba(231, 76, 60, 0.16);
-    border-color: rgba(231, 76, 60, 0.28);
-    color: #c0392b;
-}
-
-</style>
-
-
-
 <script>
+
+// ======================================
+// GRAFIK
+// ======================================
+
+const commonOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            display: false
+        }
+    },
+    scales: {
+        x: {
+            grid: {
+                display: false
+            }
+        },
+        y: {
+            beginAtZero: false
+        }
+    }
+};
+
+function createChart(id, color, label) {
+    return new Chart(document.getElementById(id), {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: label,
+                data: [],
+                borderColor: color,
+                tension: 0.4,
+                pointRadius: 2
+            }]
+        },
+        options: commonOptions
+    });
+}
+
+const chartSuhu = createChart('chartSuhu', '#e74c3c', 'Suhu');
+const chartPH = createChart('chartPH', '#9b59b6', 'pH');
+const chartSalinitas = createChart('chartSalinitas', '#16a085', 'Salinitas');
+const chartKekeruhan = createChart('chartKekeruhan', '#e67e22', 'Kekeruhan');
+
 
 // ======================================
 // STATUS PAKAN + WARNA PARAMETER
@@ -109,16 +453,12 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
 
     let status = "NORMAL";
 
-    // ======================================
-    // LOGIKA STATUS PAKAN
-    // ======================================
-
-    // NTU > 5 = TUNDA PAKAN
+    // NTU > 5
     if (kekeruhan > 5) {
         status = "TUNDA PAKAN";
     }
 
-    // SUHU / PH TIDAK NORMAL = KURANGI PAKAN
+    // SUHU / PH TIDAK NORMAL
     else if (
         suhu < 28 || suhu > 32 ||
         ph < 7.5 || ph > 8.5
@@ -133,10 +473,8 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
 
     value.innerText = status;
 
-    // RESET CLASS
     card.classList.remove('feed-stop');
 
-    // BACKGROUND MERAH
     if (
         status === "KURANGI PAKAN" ||
         status === "TUNDA PAKAN"
@@ -144,10 +482,7 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
         card.classList.add('feed-stop');
     }
 
-    // ======================================
-    // PARAMETER SUHU
-    // ======================================
-
+    // SUHU
     const cardSuhu = document.getElementById("card-suhu");
 
     if (suhu >= 28 && suhu <= 32) {
@@ -158,10 +493,7 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
         cardSuhu.classList.add("param-warning");
     }
 
-    // ======================================
-    // PARAMETER PH
-    // ======================================
-
+    // PH
     const cardPH = document.getElementById("card-ph");
 
     if (ph >= 7.5 && ph <= 8.5) {
@@ -172,10 +504,7 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
         cardPH.classList.add("param-warning");
     }
 
-    // ======================================
-    // PARAMETER SALINITAS
-    // ======================================
-
+    // SALINITAS
     const cardSalinitas = document.getElementById("card-salinitas");
 
     if (salinitas >= 28 && salinitas <= 33) {
@@ -186,10 +515,7 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
         cardSalinitas.classList.add("param-warning");
     }
 
-    // ======================================
-    // PARAMETER KEKERUHAN
-    // ======================================
-
+    // KEKERUHAN
     const cardKekeruhan = document.getElementById("card-kekeruhan");
 
     if (kekeruhan < 5) {
@@ -203,14 +529,31 @@ function updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan) {
 
 
 // ======================================
-// GANTI PEMANGGILAN LAMA MENJADI INI
+// CONTOH UPDATE REALTIME
 // ======================================
 
-updateStatusPakanLogic(
-    suhu,
-    ph,
-    salinitas,
-    data.kekeruhan
-);
+function updateRealtime(data) {
+
+    const suhu = data.suhu;
+    const ph = data.ph;
+    const salinitas = data.salinitas;
+    const kekeruhan = data.kekeruhan;
+
+    document.getElementById('val-suhu').innerText = suhu + " °C";
+    document.getElementById('val-ph').innerText = ph;
+    document.getElementById('val-salinitas').innerText = salinitas + " g/L";
+    document.getElementById('val-kekeruhan').innerText = kekeruhan + " NTU";
+
+    updateStatusPakanLogic(
+        suhu,
+        ph,
+        salinitas,
+        kekeruhan
+    );
+
+}
 
 </script>
+
+</body>
+</html>
