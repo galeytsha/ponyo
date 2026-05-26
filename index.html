@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitor Kualitas Air - UMRAH</title>
-
+    <title>Monitor Kualitas Air - Umrah</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -216,6 +216,77 @@
         }
 
         /* =========================
+           MODAL
+        ========================= */
+
+        .modal{
+            display:none;
+            position:fixed;
+            z-index:1000;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+            background-color:rgba(0,0,0,0.5);
+            align-items:center;
+            justify-content:center;
+        }
+
+        .modal-content{
+            background-color:#fff;
+            padding:25px;
+            border-radius:20px;
+            width:90%;
+            max-width:400px;
+            text-align:center;
+        }
+
+        .modal-content h3{
+            margin-bottom:10px;
+            color:#2c3e50;
+        }
+
+        .modal-content p{
+            font-size:13px;
+            color:#7f8c8d;
+            margin-bottom:20px;
+        }
+
+        .date-input{
+            width:100%;
+            padding:12px;
+            border:2px solid #ecf0f1;
+            border-radius:8px;
+            margin-bottom:20px;
+            font-size:16px;
+        }
+
+        .btn-group{
+            display:flex;
+            gap:10px;
+        }
+
+        .btn-confirm{
+            flex:1;
+            background-color:#3498db;
+            color:white;
+            border:none;
+            padding:12px;
+            border-radius:8px;
+            font-weight:700;
+        }
+
+        .btn-cancel{
+            flex:1;
+            background-color:#e74c3c;
+            color:white;
+            border:none;
+            padding:12px;
+            border-radius:8px;
+            font-weight:700;
+        }
+
+        /* =========================
            FOOTER
         ========================= */
 
@@ -258,7 +329,6 @@
 
     </div>
 
-
     <!-- STATUS PAKAN -->
     <div class="action-row">
 
@@ -273,7 +343,6 @@
         </button>
 
     </div>
-
 
     <!-- PARAMETER -->
     <div class="card">
@@ -316,8 +385,7 @@
 
     </div>
 
-
-    <!-- GRAFIK SUHU -->
+    <!-- GRAFIK -->
     <div class="card">
         <div class="chart-header">🌡️ Suhu (°C)</div>
         <div class="chart-container">
@@ -325,7 +393,6 @@
         </div>
     </div>
 
-    <!-- GRAFIK PH -->
     <div class="card">
         <div class="chart-header">💧 pH</div>
         <div class="chart-container">
@@ -333,7 +400,6 @@
         </div>
     </div>
 
-    <!-- GRAFIK SALINITAS -->
     <div class="card">
         <div class="chart-header">🧂 Salinitas (g/L)</div>
         <div class="chart-container">
@@ -341,7 +407,6 @@
         </div>
     </div>
 
-    <!-- GRAFIK KEKERUHAN -->
     <div class="card">
         <div class="chart-header">🟤 Kekeruhan (NTU)</div>
         <div class="chart-container">
@@ -349,183 +414,459 @@
         </div>
     </div>
 
-
     <!-- FOOTER -->
     <div class="footer">
-        <img src="Umrah.PNG" alt="UMRAH">
+        <img src="Umrah.PNG" alt="Umrah">
         <span>Universitas Maritim Raja Ali Haji</span>
     </div>
 
 </div>
 
 
-<script>
+<!-- MODAL -->
+<div id="downloadModal" class="modal">
 
-    // =========================
-    // GRAFIK
-    // =========================
+    <div class="modal-content">
 
-    const commonOptions = {
-        responsive:true,
-        maintainAspectRatio:false,
-        plugins:{
-            legend:{
+        <h3>Pilih Tanggal Laporan</h3>
+
+        <p>
+            Data hari ini baru akan tersedia untuk diunduh besok jam 00:00.
+        </p>
+
+        <input type="date" id="datePicker" class="date-input">
+
+        <div class="btn-group">
+
+            <button id="btnCancel" class="btn-cancel">
+                Batal
+            </button>
+
+            <button id="btnConfirmDownload" class="btn-confirm">
+                Unduh CSV
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    onValue,
+    get,
+    query,
+    limitToLast
+}
+from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+
+// =========================
+// FIREBASE
+// =========================
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
+
+    authDomain: "kualitas-air-74caa.firebaseapp.com",
+
+    databaseURL:
+    "https://kualitas-air-74caa-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId: "kualitas-air-74caa",
+
+    storageBucket: "kualitas-air-74caa.firebasestorage.app",
+
+    messagingSenderId: "1043958781105",
+
+    appId:
+    "1:1043958781105:web:59c84659c1030381e33e90"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+
+// =========================
+// GRAFIK
+// =========================
+
+const commonOptions = {
+
+    responsive:true,
+
+    maintainAspectRatio:false,
+
+    plugins:{
+        legend:{
+            display:false
+        }
+    },
+
+    scales:{
+        x:{
+            grid:{
                 display:false
             }
         },
-        scales:{
-            x:{
-                grid:{
-                    display:false
-                }
-            },
-            y:{
-                beginAtZero:false
-            }
-        }
-    };
 
-    function createChart(id,color,label){
-        return new Chart(document.getElementById(id),{
-            type:'line',
-            data:{
-                labels:[],
-                datasets:[{
-                    label:label,
-                    data:[],
-                    borderColor:color,
-                    tension:0.4,
-                    pointRadius:2
-                }]
-            },
-            options:commonOptions
+        y:{
+            beginAtZero:false
+        }
+    }
+};
+
+function createChart(id,color,label){
+
+    return new Chart(document.getElementById(id),{
+
+        type:'line',
+
+        data:{
+            labels:[],
+
+            datasets:[{
+                label:label,
+                data:[],
+                borderColor:color,
+                tension:0.4,
+                pointRadius:2
+            }]
+        },
+
+        options:commonOptions
+    });
+}
+
+const chartSuhu =
+createChart('chartSuhu','#e74c3c','Suhu');
+
+const chartPH =
+createChart('chartPH','#9b59b6','pH');
+
+const chartSalinitas =
+createChart('chartSalinitas','#16a085','Salinitas');
+
+const chartKekeruhan =
+createChart('chartKekeruhan','#e67e22','Kekeruhan');
+
+
+// =========================
+// VALIDASI
+// =========================
+
+function isValidValue(value){
+
+    return value !== undefined &&
+           value !== null &&
+           value !== "";
+}
+
+function formatValue(value,suffix=""){
+
+    return isValidValue(value)
+        ? `${value}${suffix}`
+        : `--${suffix}`;
+}
+
+function getSuhu(data){
+
+    return data.suhu ?? data.suhu_air;
+}
+
+
+// =========================
+// GRAFIK REALTIME
+// =========================
+
+function pushDataSingle(chart,time,val){
+
+    if(!isValidValue(val)) return;
+
+    chart.data.labels.push(time);
+
+    chart.data.datasets[0].data.push(val);
+
+    if(chart.data.labels.length > 24){
+
+        chart.data.labels.shift();
+
+        chart.data.datasets[0].data.shift();
+    }
+
+    chart.update();
+}
+
+function clearChart(chart){
+
+    chart.data.labels = [];
+
+    chart.data.datasets[0].data = [];
+}
+
+function pushHistoryData(chart,time,val){
+
+    if(!isValidValue(val)) return;
+
+    chart.data.labels.push(time);
+
+    chart.data.datasets[0].data.push(val);
+}
+
+
+// =========================
+// STATUS PAKAN
+// =========================
+
+function updateStatusPakanLogic(
+    suhu,
+    ph,
+    salinitas,
+    kekeruhan
+){
+
+    const card =
+    document.getElementById('feedStatusCard');
+
+    const value =
+    document.getElementById('feedStatusValue');
+
+    let status = "NORMAL";
+
+    // NTU > 5
+    if(kekeruhan > 5){
+
+        status = "TUNDA PAKAN";
+    }
+
+    // SUHU / PH TIDAK NORMAL
+    else if(
+
+        suhu < 28 ||
+        suhu > 32 ||
+
+        ph < 7.5 ||
+        ph > 8.5
+
+    ){
+
+        status = "KURANGI PAKAN";
+    }
+
+    else{
+
+        status = "NORMAL";
+    }
+
+    value.innerText = status;
+
+    card.classList.remove('feed-stop');
+
+    if(
+        status === "KURANGI PAKAN" ||
+        status === "TUNDA PAKAN"
+    ){
+
+        card.classList.add('feed-stop');
+    }
+
+    // =========================
+    // SUHU
+    // =========================
+
+    const cardSuhu =
+    document.getElementById("card-suhu");
+
+    if(suhu >= 28 && suhu <= 32){
+
+        cardSuhu.classList.remove("param-warning");
+        cardSuhu.classList.add("param-normal");
+    }
+
+    else{
+
+        cardSuhu.classList.remove("param-normal");
+        cardSuhu.classList.add("param-warning");
+    }
+
+    // =========================
+    // PH
+    // =========================
+
+    const cardPH =
+    document.getElementById("card-ph");
+
+    if(ph >= 7.5 && ph <= 8.5){
+
+        cardPH.classList.remove("param-warning");
+        cardPH.classList.add("param-normal");
+    }
+
+    else{
+
+        cardPH.classList.remove("param-normal");
+        cardPH.classList.add("param-warning");
+    }
+
+    // =========================
+    // SALINITAS
+    // =========================
+
+    const cardSalinitas =
+    document.getElementById("card-salinitas");
+
+    if(salinitas >= 28 && salinitas <= 33){
+
+        cardSalinitas.classList.remove("param-warning");
+        cardSalinitas.classList.add("param-normal");
+    }
+
+    else{
+
+        cardSalinitas.classList.remove("param-normal");
+        cardSalinitas.classList.add("param-warning");
+    }
+
+    // =========================
+    // KEKERUHAN
+    // =========================
+
+    const cardKekeruhan =
+    document.getElementById("card-kekeruhan");
+
+    if(kekeruhan < 5){
+
+        cardKekeruhan.classList.remove("param-warning");
+        cardKekeruhan.classList.add("param-normal");
+    }
+
+    else{
+
+        cardKekeruhan.classList.remove("param-normal");
+        cardKekeruhan.classList.add("param-warning");
+    }
+}
+
+
+// =========================
+// MASKOT
+// =========================
+
+let lastDataTime = Date.now();
+
+function updateMascot(isActive){
+
+    const img =
+    document.getElementById('mascotImage');
+
+    if(isActive){
+
+        img.src = 'wake.png';
+    }
+
+    else{
+
+        img.src = 'sleep.png';
+    }
+}
+
+
+// =========================
+// RIWAYAT GRAFIK
+// =========================
+
+const historyRef =
+query(ref(db,'keramba/logs'),limitToLast(24));
+
+get(historyRef).then((snapshot)=>{
+
+    if(snapshot.exists()){
+
+        clearChart(chartSuhu);
+        clearChart(chartPH);
+        clearChart(chartSalinitas);
+        clearChart(chartKekeruhan);
+
+        snapshot.forEach((childSnapshot)=>{
+
+            const val = childSnapshot.val();
+
+            const jamMenit =
+            val.waktu
+            ? val.waktu.substring(0,5)
+            : "--:--";
+
+            pushHistoryData(
+                chartSuhu,
+                jamMenit,
+                getSuhu(val)
+            );
+
+            pushHistoryData(
+                chartPH,
+                jamMenit,
+                val.ph
+            );
+
+            pushHistoryData(
+                chartSalinitas,
+                jamMenit,
+                val.salinitas
+            );
+
+            pushHistoryData(
+                chartKekeruhan,
+                jamMenit,
+                val.kekeruhan
+            );
         });
+
+        chartSuhu.update();
+        chartPH.update();
+        chartSalinitas.update();
+        chartKekeruhan.update();
     }
-
-    const chartSuhu = createChart('chartSuhu','#e74c3c','Suhu');
-    const chartPH = createChart('chartPH','#9b59b6','pH');
-    const chartSalinitas = createChart('chartSalinitas','#16a085','Salinitas');
-    const chartKekeruhan = createChart('chartKekeruhan','#e67e22','Kekeruhan');
+});
 
 
-    // =========================
-    // STATUS PAKAN
-    // =========================
+// =========================
+// REALTIME FIREBASE
+// =========================
 
-    function updateStatusPakanLogic(suhu,ph,salinitas,kekeruhan){
+let lastChartUpdateTime = 0;
 
-        const card = document.getElementById('feedStatusCard');
-        const value = document.getElementById('feedStatusValue');
+const chartUpdateInterval =
+15 * 60 * 1000;
 
-        let status = "NORMAL";
+const sensorRef =
+ref(db,'keramba/latest');
 
-        // NTU > 5
-        if(kekeruhan > 5){
-            status = "TUNDA PAKAN";
-        }
+onValue(sensorRef,(snapshot)=>{
 
-        // SUHU / PH TIDAK NORMAL
-        else if(
-            suhu < 28 || suhu > 32 ||
-            ph < 7.5 || ph > 8.5
-        ){
-            status = "KURANGI PAKAN";
-        }
+    const data = snapshot.val();
 
-        // NORMAL
-        else{
-            status = "NORMAL";
-        }
+    if(data){
 
-        value.innerText = status;
+        const now = Date.now();
 
-        card.classList.remove('feed-stop');
+        lastDataTime = now;
 
-        if(
-            status === "KURANGI PAKAN" ||
-            status === "TUNDA PAKAN"
-        ){
-            card.classList.add('feed-stop');
-        }
+        updateMascot(true);
 
-        // =========================
-        // SUHU
-        // =========================
-
-        const cardSuhu = document.getElementById("card-suhu");
-
-        if(suhu >= 28 && suhu <= 32){
-            cardSuhu.classList.remove("param-warning");
-            cardSuhu.classList.add("param-normal");
-        }
-        else{
-            cardSuhu.classList.remove("param-normal");
-            cardSuhu.classList.add("param-warning");
-        }
-
-        // =========================
-        // PH
-        // =========================
-
-        const cardPH = document.getElementById("card-ph");
-
-        if(ph >= 7.5 && ph <= 8.5){
-            cardPH.classList.remove("param-warning");
-            cardPH.classList.add("param-normal");
-        }
-        else{
-            cardPH.classList.remove("param-normal");
-            cardPH.classList.add("param-warning");
-        }
-
-        // =========================
-        // SALINITAS
-        // =========================
-
-        const cardSalinitas = document.getElementById("card-salinitas");
-
-        if(salinitas >= 28 && salinitas <= 33){
-            cardSalinitas.classList.remove("param-warning");
-            cardSalinitas.classList.add("param-normal");
-        }
-        else{
-            cardSalinitas.classList.remove("param-normal");
-            cardSalinitas.classList.add("param-warning");
-        }
-
-        // =========================
-        // KEKERUHAN
-        // =========================
-
-        const cardKekeruhan = document.getElementById("card-kekeruhan");
-
-        if(kekeruhan < 5){
-            cardKekeruhan.classList.remove("param-warning");
-            cardKekeruhan.classList.add("param-normal");
-        }
-        else{
-            cardKekeruhan.classList.remove("param-normal");
-            cardKekeruhan.classList.add("param-warning");
-        }
-    }
-
-
-    // =========================
-    // CONTOH UPDATE DATA
-    // =========================
-
-    function updateRealtime(data){
-
-        const suhu = data.suhu;
+        const suhu = getSuhu(data);
         const ph = data.ph;
         const salinitas = data.salinitas;
         const kekeruhan = data.kekeruhan;
 
-        document.getElementById('val-suhu').innerText = suhu + " °C";
-        document.getElementById('val-ph').innerText = ph;
-        document.getElementById('val-salinitas').innerText = salinitas + " g/L";
-        document.getElementById('val-kekeruhan').innerText = kekeruhan + " NTU";
-
+        // STATUS
         updateStatusPakanLogic(
             suhu,
             ph,
@@ -533,7 +874,248 @@
             kekeruhan
         );
 
+        // PARAMETER
+        document.getElementById('val-suhu')
+        .innerText = formatValue(suhu," °C");
+
+        document.getElementById('val-ph')
+        .innerText = formatValue(ph);
+
+        document.getElementById('val-salinitas')
+        .innerText = formatValue(salinitas," g/L");
+
+        document.getElementById('val-kekeruhan')
+        .innerText = formatValue(kekeruhan," NTU");
+
+        const time =
+        data.waktu
+        ? data.waktu.substring(0,5)
+        : "--:--";
+
+        document.getElementById('last-update')
+        .innerText =
+        "Update Terakhir: " +
+        (data.tanggal || "--/--/--") +
+        " " +
+        time;
+
+        // UPDATE GRAFIK
+        if(
+            now - lastChartUpdateTime
+            >= chartUpdateInterval
+        ){
+
+            pushDataSingle(
+                chartSuhu,
+                time,
+                suhu
+            );
+
+            pushDataSingle(
+                chartPH,
+                time,
+                ph
+            );
+
+            pushDataSingle(
+                chartSalinitas,
+                time,
+                salinitas
+            );
+
+            pushDataSingle(
+                chartKekeruhan,
+                time,
+                kekeruhan
+            );
+
+            lastChartUpdateTime = now;
+        }
     }
+});
+
+
+// =========================
+// MASKOT SLEEP
+// =========================
+
+setInterval(()=>{
+
+    if(
+        Date.now() - lastDataTime
+        > 65000
+    ){
+
+        updateMascot(false);
+    }
+
+},10000);
+
+
+// =========================
+// DOWNLOAD CSV
+// =========================
+
+const modal =
+document.getElementById("downloadModal");
+
+const btnOpen =
+document.getElementById("btnOpenModal");
+
+const btnCancel =
+document.getElementById("btnCancel");
+
+const btnConfirm =
+document.getElementById("btnConfirmDownload");
+
+const datePicker =
+document.getElementById("datePicker");
+
+const today = new Date();
+
+const yesterday = new Date(today);
+
+yesterday.setDate(
+    yesterday.getDate() - 1
+);
+
+datePicker.max =
+yesterday.toISOString().split('T')[0];
+
+if(btnOpen){
+
+    btnOpen.onclick = ()=>{
+
+        modal.style.display = "flex";
+    };
+}
+
+if(btnCancel){
+
+    btnCancel.onclick = ()=>{
+
+        modal.style.display = "none";
+    };
+}
+
+if(btnConfirm){
+
+    btnConfirm.onclick = ()=>{
+
+        const selectedDate =
+        datePicker.value;
+
+        if(!selectedDate){
+
+            alert(
+                "Silakan pilih tanggal terlebih dahulu!"
+            );
+
+            return;
+        }
+
+        const dateParts =
+        selectedDate.split('-');
+
+        const targetDateESP32 =
+        `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+
+        btnConfirm.innerText =
+        "Mencari Data...";
+
+        btnConfirm.disabled = true;
+
+        get(ref(db,'keramba/logs'))
+
+        .then((snapshot)=>{
+
+            if(snapshot.exists()){
+
+                let csvContent =
+                "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu (C),pH,Salinitas (g/L),Kekeruhan (NTU)\n";
+
+                let dataFound = false;
+
+                snapshot.forEach((childSnapshot)=>{
+
+                    const row =
+                    childSnapshot.val();
+
+                    if(
+                        row.tanggal === targetDateESP32
+                    ){
+
+                        dataFound = true;
+
+                        const suhu =
+                        getSuhu(row);
+
+                        csvContent +=
+                        `${row.tanggal},${row.waktu},${suhu ?? ''},${row.ph ?? ''},${row.salinitas ?? ''},${row.kekeruhan ?? ''}\n`;
+                    }
+                });
+
+                if(dataFound){
+
+                    const encodedUri =
+                    encodeURI(csvContent);
+
+                    const link =
+                    document.createElement("a");
+
+                    link.setAttribute(
+                        "href",
+                        encodedUri
+                    );
+
+                    link.setAttribute(
+                        "download",
+                        `Laporan_Kualitas_Air_${selectedDate}.csv`
+                    );
+
+                    document.body.appendChild(link);
+
+                    link.click();
+
+                    document.body.removeChild(link);
+
+                    modal.style.display = "none";
+                }
+
+                else{
+
+                    alert(
+                        `Data tanggal ${targetDateESP32} belum tersedia atau alat mati pada hari tersebut.`
+                    );
+                }
+            }
+
+            else{
+
+                alert(
+                    "Database masih kosong, belum ada rekaman sama sekali."
+                );
+            }
+        })
+
+        .catch((error)=>{
+
+            alert(
+                "Terjadi kesalahan koneksi internet."
+            );
+
+            console.error(error);
+        })
+
+        .finally(()=>{
+
+            btnConfirm.innerText =
+            "Unduh CSV";
+
+            btnConfirm.disabled = false;
+        });
+    };
+}
 
 </script>
 
