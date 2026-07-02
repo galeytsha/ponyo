@@ -406,28 +406,27 @@ function updateStatusPakanLogic(
     kekeruhan){
     const card = document.getElementById('feedStatusCard');
     const value = document.getElementById('feedStatusValue');
-    // PERLAKUAN PEMBERIAN PAKAN
+// PERLAKUAN PEMBERIAN PAKAN
     let status = "NORMAL";
     // Hanya suhu dan pH yang menentukan perlakuan pemberian pakan
     if (
-        suhu < 28 ||
-        suhu > 32 ||
-        ph < 7.5 ||
-        ph > 8.5){
-        status = "KURANGI PAKAN";}
+    suhu < 28 ||
+    ph < 7.5 ||
+    ph > 8.5)
+    {status = "KURANGI PAKAN";}
     value.innerText = status;
     card.classList.remove('feed-stop');
     if(status === "KURANGI PAKAN"){
         card.classList.add('feed-stop');}
-    // SUHU
+// SUHU
     const cardSuhu = document.getElementById("card-suhu");
-    if(suhu >= 28 && suhu <= 32){
-        cardSuhu.classList.remove("param-warning");
-        cardSuhu.classList.add("param-normal");}
+    if(suhu >= 28){
+    cardSuhu.classList.remove("param-warning");
+    cardSuhu.classList.add("param-normal");}
     else{
-        cardSuhu.classList.remove("param-normal");
-        cardSuhu.classList.add("param-warning");}
-    // pH
+    cardSuhu.classList.remove("param-normal");
+    cardSuhu.classList.add("param-warning");}
+// pH
     const cardPH = document.getElementById("card-ph");
     if(ph >= 7.5 && ph <= 8.5){
         cardPH.classList.remove("param-warning");
@@ -435,7 +434,7 @@ function updateStatusPakanLogic(
     else{
         cardPH.classList.remove("param-normal");
         cardPH.classList.add("param-warning");}
-    // SALINITAS
+// SALINITAS
     const cardSalinitas = document.getElementById("card-salinitas");
     if(salinitas >= 28 && salinitas <= 33){
         cardSalinitas.classList.remove("param-warning");
@@ -443,7 +442,7 @@ function updateStatusPakanLogic(
     else{
         cardSalinitas.classList.remove("param-normal");
         cardSalinitas.classList.add("param-warning");}
-    // KEKERUHAN
+// KEKERUHAN
     const cardKekeruhan = document.getElementById("card-kekeruhan");
     if(kekeruhan < 5){
         cardKekeruhan.classList.remove("param-warning");
