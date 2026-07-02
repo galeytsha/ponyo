@@ -11,23 +11,20 @@
             box-sizing:border-box;
             margin:0;
             padding:0;
-            font-family:'Quicksand',sans-serif;
-        }
+            font-family:'Quicksand',sans-serif;}
         body{
             background-color:#f7f9fc;
             color:#333;
             padding:20px;
             display:flex;
             flex-direction:column;
-            align-items:center;
-        }
+            align-items:center;}
         .container{
             width:100%;
             max-width:480px;
             display:flex;
             flex-direction:column;
-            gap:20px;
-        }
+            gap:20px;}
         /*HEADER*/
         .header{
             display:flex;
@@ -38,44 +35,36 @@
             background:white;
             padding:15px;
             border-radius:20px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.02);
-        }
+            box-shadow:0 4px 10px rgba(0,0,0,0.02);}
         .mascot-header{
             position:relative;
             width:100px;
-            flex-shrink:0;
-        }
+            flex-shrink:0;}
         .mascot-header img{
             width:100%;
             height:auto;
-            display:block;
-        }
+            display:block;}
         .header-text{
-            text-align:left;
-        }
+            text-align:left;}
         .header-text h1{
             font-size:18px;
             font-weight:700;
             color:#2c3e50;
-            margin-bottom:2px;
-        }
+            margin-bottom:2px;}
         .header-text p{
             font-size:12px;
-            color:#7f8c8d;
-        }
+            color:#7f8c8d;}
         /*STATUS PAKAN*/
         .action-row{
             display:grid;
             grid-template-columns:1fr 1fr;
             gap:12px;
-            width:100%;
-        }
+            width:100%;}
         .feed-status-card,
         .btn-download-trigger{
             min-height:82px;
             border-radius:18px;
-            box-shadow:0 4px 10px rgba(0,0,0,0.04);
-        }
+            box-shadow:0 4px 10px rgba(0,0,0,0.04);}
         .feed-status-card{
             display:flex;
             flex-direction:column;
@@ -84,23 +73,19 @@
             background:#ffffff;
             border:1px solid rgba(0,0,0,0.05);
             color:#2c3e50;
-            transition:all 0.3s ease;
-        }
+            transition:all 0.3s ease;}
         .feed-stop{
             background:rgba(231,76,60,0.16);
             border-color:rgba(231,76,60,0.28);
-            color:#c0392b;
-        }
+            color:#c0392b;}
         .feed-label{
             font-size:13px;
             font-weight:500;
-            margin-bottom:6px;
-        }
+            margin-bottom:6px;}
         .feed-value{
             font-size:18px;
             font-weight:700;
-            line-height:1.15;
-        }
+            line-height:1.15;}
         .btn-download-trigger{
             background-color:#27ae60;
             color:white;
@@ -115,20 +100,17 @@
             justify-content:center;
             gap:8px;
             text-align:center;
-            line-height:1.25;
-        }
+            line-height:1.25;}
         /*KARTU DATA*/
         .card{
             background-color:#ffffff;
             border-radius:20px;
             padding:20px;
-            box-shadow:0 8px 15px rgba(0,0,0,0.03);
-        }
+            box-shadow:0 8px 15px rgba(0,0,0,0.03);}
         .summary-list{
             display:flex;
             flex-direction:column;
-            gap:12px;
-        }
+            gap:12px;}
         .summary-item{
             display:flex;
             justify-content:space-between;
@@ -139,27 +121,22 @@
             padding:10px 12px;
             border-radius:12px;
             transition:all 0.3s ease;
-            background:#ffffff;
-        }
+            background:#ffffff;}
         .param-normal{
             background:#ffffff;
-            border:1px solid rgba(0,0,0,0.05);
-        }
+            border:1px solid rgba(0,0,0,0.05);}
         .param-warning{
             background:rgba(231,76,60,0.16);
             border:1px solid rgba(231,76,60,0.28);
-            color:#c0392b;
-        }
+            color:#c0392b;}
         .item-left{
             display:flex;
             align-items:center;
-            gap:12px;
-        }
+            gap:12px;}
         .item-icon{
             font-size:22px;
             width:28px;
-            text-align:center;
-        }
+            text-align:center;}
         /*GRAFIK*/
         .chart-header{
             display:flex;
@@ -168,13 +145,11 @@
             margin-bottom:10px;
             font-weight:700;
             color:#2c3e50;
-            font-size:14px;
-        }
+            font-size:14px;}
         .chart-container{
             position:relative;
             height:180px;
-            width:100%;
-        }
+            width:100%;}
         /*MODAL*/
         .modal{
             display:none;
@@ -186,16 +161,14 @@
             height:100%;
             background-color:rgba(0,0,0,0.5);
             align-items:center;
-            justify-content:center;
-        }
+            justify-content:center;}
         .modal-content{
             background-color:#fff;
             padding:25px;
             border-radius:20px;
             width:90%;
             max-width:400px;
-            text-align:center;
-        }
+            text-align:center;}
         .modal-content h3{
             margin-bottom:10px;
             color:#2c3e50;
@@ -203,20 +176,17 @@
         .modal-content p{
             font-size:13px;
             color:#7f8c8d;
-            margin-bottom:20px;
-        }
+            margin-bottom:20px;}
         .date-input{
             width:100%;
             padding:12px;
             border:2px solid #ecf0f1;
             border-radius:8px;
             margin-bottom:20px;
-            font-size:16px;
-        }
+            font-size:16px;}
         .btn-group{
             display:flex;
-            gap:10px;
-        }
+            gap:10px;}
         .btn-confirm{
             flex:1;
             background-color:#3498db;
@@ -224,8 +194,7 @@
             border:none;
             padding:12px;
             border-radius:8px;
-            font-weight:700;
-        }
+            font-weight:700;}
         .btn-cancel{
             flex:1;
             background-color:#e74c3c;
@@ -233,8 +202,7 @@
             border:none;
             padding:12px;
             border-radius:8px;
-            font-weight:700;
-        }
+            font-weight:700;}
         /*FOOTER*/
         .footer{
             text-align:center;
@@ -246,13 +214,11 @@
             align-items:center;
             justify-content:center;
             gap:10px;
-            font-size:13px;
-        }
+            font-size:13px;}
         .footer img{
             height:35px;
-            width:auto;
-        }
-    </style>
+            width:auto;}
+</style>
 </head>
 <body>
 <div class="container">
@@ -367,47 +333,28 @@ import {
     onValue,
     get,
     query,
-    limitToLast
-}
+    limitToLast}
 from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
-// =========================
 // FIREBASE
-// =========================
 const firebaseConfig = {
     apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
     authDomain: "kualitas-air-74caa.firebaseapp.com",
-    databaseURL:
-    "https://kualitas-air-74caa-default-rtdb.asia-southeast1.firebasedatabase.app",
+    databaseURL: "https://kualitas-air-74caa-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "kualitas-air-74caa",
     storageBucket: "kualitas-air-74caa.firebasestorage.app",
     messagingSenderId: "1043958781105",
-    appId:
-    "1:1043958781105:web:59c84659c1030381e33e90"
-};
+    appId: "1:1043958781105:web:59c84659c1030381e33e90"};
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-// =========================
 // GRAFIK
-// =========================
 const commonOptions = {
     responsive:true,
     maintainAspectRatio:false,
     plugins:{
-        legend:{
-            display:false
-        }
-    },
+        legend:{ display:false}},
     scales:{
-        x:{
-            grid:{
-                display:false
-            }
-        },
-        y:{
-            beginAtZero:false
-        }
-    }
-};
+        x:{grid:{display:false}},
+        y:{beginAtZero:false}}};
 function createChart(id,color,label){
     return new Chart(document.getElementById(id),{
         type:'line',
@@ -418,149 +365,101 @@ function createChart(id,color,label){
                 data:[],
                 borderColor:color,
                 tension:0.4,
-                pointRadius:2
-            }]
-        },
-        options:commonOptions
-    });
-}
+                pointRadius:2}]},
+        options:commonOptions});}
 const chartSuhu = createChart('chartSuhu','#e74c3c','Suhu');
 const chartPH = createChart('chartPH','#9b59b6','pH');
 const chartSalinitas = createChart('chartSalinitas','#16a085','Salinitas');
 const chartKekeruhan = createChart('chartKekeruhan','#e67e22','Kekeruhan');
-// =========================
 // VALIDASI
-// =========================
 function isValidValue(value){
     return value !== undefined &&
            value !== null &&
-           value !== "";
-}
+           value !== "";}
 function formatValue(value,suffix=""){
     return isValidValue(value)
         ? `${value}${suffix}`
-        : `--${suffix}`;
-}
+        : `--${suffix}`;}
 function getSuhu(data){
-    return data.suhu ?? data.suhu_air;
-}
-// =========================
+    return data.suhu ?? data.suhu_air;}
 // GRAFIK REALTIME
-// =========================
 function pushDataSingle(chart,time,val){
     if(!isValidValue(val)) return;
     chart.data.labels.push(time);
     chart.data.datasets[0].data.push(val);
     if(chart.data.labels.length > 24){
         chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();
-    }
-    chart.update();
-}
+        chart.data.datasets[0].data.shift();}
+    chart.update();}
 function clearChart(chart){
     chart.data.labels = [];
-    chart.data.datasets[0].data = [];
-}
+    chart.data.datasets[0].data = [];}
 function pushHistoryData(chart,time,val){
     if(!isValidValue(val)) return;
     chart.data.labels.push(time);
-    chart.data.datasets[0].data.push(val);
-}
-// =========================
+    chart.data.datasets[0].data.push(val);}
 // STATUS PAKAN
-// =========================
 function updateStatusPakanLogic(
     suhu,
     ph,
     salinitas,
-    kekeruhan
-){
+    kekeruhan){
     const card = document.getElementById('feedStatusCard');
     const value = document.getElementById('feedStatusValue');
-    // =========================
     // PERLAKUAN PEMBERIAN PAKAN
-    // =========================
     let status = "NORMAL";
     // Hanya suhu dan pH yang menentukan perlakuan pemberian pakan
     if (
         suhu < 28 ||
         suhu > 32 ||
         ph < 7.5 ||
-        ph > 8.5
-    ){
-        status = "KURANGI PAKAN";
-    }
+        ph > 8.5){
+        status = "KURANGI PAKAN";}
     value.innerText = status;
     card.classList.remove('feed-stop');
     if(status === "KURANGI PAKAN"){
-        card.classList.add('feed-stop');
-    }
-    // =========================
+        card.classList.add('feed-stop');}
     // SUHU
-    // =========================
     const cardSuhu = document.getElementById("card-suhu");
     if(suhu >= 28 && suhu <= 32){
         cardSuhu.classList.remove("param-warning");
-        cardSuhu.classList.add("param-normal");
-    }
+        cardSuhu.classList.add("param-normal");}
     else{
         cardSuhu.classList.remove("param-normal");
-        cardSuhu.classList.add("param-warning");
-    }
-    // =========================
-    // PH
-    // =========================
+        cardSuhu.classList.add("param-warning");}
+    // pH
     const cardPH = document.getElementById("card-ph");
     if(ph >= 7.5 && ph <= 8.5){
         cardPH.classList.remove("param-warning");
-        cardPH.classList.add("param-normal");
-    }
+        cardPH.classList.add("param-normal");}
     else{
         cardPH.classList.remove("param-normal");
-        cardPH.classList.add("param-warning");
-    }
-    // =========================
+        cardPH.classList.add("param-warning");}
     // SALINITAS
-    // =========================
-    const cardSalinitas =
-    document.getElementById("card-salinitas");
+    const cardSalinitas = document.getElementById("card-salinitas");
     if(salinitas >= 28 && salinitas <= 33){
         cardSalinitas.classList.remove("param-warning");
-        cardSalinitas.classList.add("param-normal");
-    }
+        cardSalinitas.classList.add("param-normal");}
     else{
         cardSalinitas.classList.remove("param-normal");
-        cardSalinitas.classList.add("param-warning");
-    }
-    // =========================
+        cardSalinitas.classList.add("param-warning");}
     // KEKERUHAN
-    // =========================
     const cardKekeruhan = document.getElementById("card-kekeruhan");
     if(kekeruhan < 5){
         cardKekeruhan.classList.remove("param-warning");
-        cardKekeruhan.classList.add("param-normal");
-    }
+        cardKekeruhan.classList.add("param-normal");}
     else{
         cardKekeruhan.classList.remove("param-normal");
-        cardKekeruhan.classList.add("param-warning");
-    }
-}
-// =========================
+        cardKekeruhan.classList.add("param-warning");}}
 // MASKOT
-// =========================
 let lastDataTime = Date.now();
 function updateMascot(isActive){
     const img = document.getElementById('mascotImage');
     if(isActive){
-        img.src = 'wake.png';
-    }
+        img.src = 'wake.png';}
     else{
-        img.src = 'sleep.png';
-    }
-}
-// =========================
+        img.src = 'sleep.png';}}
 // RIWAYAT GRAFIK
-// =========================
 const historyRef = query(ref(db,'keramba/logs'),limitToLast(24));
 get(historyRef).then((snapshot)=>{
     if(snapshot.exists()){
@@ -570,40 +469,16 @@ get(historyRef).then((snapshot)=>{
         clearChart(chartKekeruhan);
         snapshot.forEach((childSnapshot)=>{
             const val = childSnapshot.val();
-            const jamMenit =
-            val.waktu
-            ? val.waktu.substring(0,5)
-            : "--:--";
-            pushHistoryData(
-                chartSuhu,
-                jamMenit,
-                getSuhu(val)
-            );
-            pushHistoryData(
-                chartPH,
-                jamMenit,
-                val.ph
-            );
-            pushHistoryData(
-                chartSalinitas,
-                jamMenit,
-                val.salinitas
-            );
-            pushHistoryData(
-                chartKekeruhan,
-                jamMenit,
-                val.kekeruhan
-            );
-        });
+            const jamMenit = val.waktu? val.waktu.substring(0,5): "--:--";
+            pushHistoryData(chartSuhu, jamMenit, getSuhu(val));
+            pushHistoryData(chartPH, jamMenit, val.ph);
+            pushHistoryData(chartSalinitas, jamMenit, val.salinitas);
+            pushHistoryData(chartKekeruhan, jamMenit, val.kekeruhan);});
         chartSuhu.update();
         chartPH.update();
         chartSalinitas.update();
-        chartKekeruhan.update();
-    }
-});
-// =========================
+        chartKekeruhan.update();}});
 // REALTIME FIREBASE
-// =========================
 let lastChartUpdateTime = 0;
 const chartUpdateInterval = 15 * 60 * 1000;
 const sensorRef = ref(db,'keramba/latest');
@@ -618,74 +493,30 @@ onValue(sensorRef,(snapshot)=>{
         const salinitas = data.salinitas;
         const kekeruhan = data.kekeruhan;
         // STATUS
-        updateStatusPakanLogic(
-            suhu,
-            ph,
-            salinitas,
-            kekeruhan
-        );
+        updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan);
         // PARAMETER
-        document.getElementById('val-suhu')
-        .innerText = formatValue(suhu," °C");
-        document.getElementById('val-ph')
-        .innerText = formatValue(ph);
-        document.getElementById('val-salinitas')
-        .innerText = formatValue(salinitas," g/L");
-        document.getElementById('val-kekeruhan')
-        .innerText = formatValue(kekeruhan," NTU");
-        const time =
-        data.waktu
-        ? data.waktu.substring(0,5)
-        : "--:--";
-        document.getElementById('last-update')
-        .innerText =
-        "Update Terakhir: " +
-        (data.tanggal || "--/--/--") +
-        " " +
-        time;
+        document.getElementById('val-suhu').innerText = formatValue(suhu," °C");
+        document.getElementById('val-ph').innerText = formatValue(ph);
+        document.getElementById('val-salinitas').innerText = formatValue(salinitas," g/L");
+        document.getElementById('val-kekeruhan').innerText = formatValue(kekeruhan," NTU");
+        const time = data.waktu ? data.waktu.substring(0,5): "--:--";
+        document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
         // UPDATE GRAFIK
         if(
             now - lastChartUpdateTime
             >= chartUpdateInterval
         ){
-            pushDataSingle(
-                chartSuhu,
-                time,
-                suhu
-            );
-            pushDataSingle(
-                chartPH,
-                time,
-                ph
-            );
-            pushDataSingle(
-                chartSalinitas,
-                time,
-                salinitas
-            );
-            pushDataSingle(
-                chartKekeruhan,
-                time,
-                kekeruhan
-            );
-            lastChartUpdateTime = now;
-        }
-    }
-});
-// =========================
+            pushDataSingle(chartSuhu, time, suhu);
+            pushDataSingle(chartPH, time, ph);
+            pushDataSingle(chartSalinitas, time, salinitas);
+            pushDataSingle(chartKekeruhan, time, kekeruhan);
+            lastChartUpdateTime = now;}}});
 // MASKOT SLEEP
-// =========================
 setInterval(()=>{
     if(
-        Date.now() - lastDataTime
-        > 65000
-    ){
-        updateMascot(false);
-    }
-},10000);
-// =========================
+        Date.now() - lastDataTime> 65000){
+        updateMascot(false);}},10000);
 // DOWNLOAD CSV
-// =========================
 const modal = document.getElementById("downloadModal");
 const btnOpen = document.getElementById("btnOpenModal");
 const btnCancel = document.getElementById("btnCancel");
@@ -693,96 +524,56 @@ const btnConfirm = document.getElementById("btnConfirmDownload");
 const datePicker = document.getElementById("datePicker");
 const today = new Date();
 const yesterday = new Date(today);
-yesterday.setDate(
-    yesterday.getDate() - 1
-);
-datePicker.max =
-yesterday.toISOString().split('T')[0];
+yesterday.setDate(yesterday.getDate() - 1);
+datePicker.max = yesterday.toISOString().split('T')[0];
 if(btnOpen){
     btnOpen.onclick = ()=>{
-        modal.style.display = "flex";
-    };
-}
+        modal.style.display = "flex";};}
 if(btnCancel){
     btnCancel.onclick = ()=>{
-        modal.style.display = "none";
-    };
-}
+        modal.style.display = "none";};}
 if(btnConfirm){
     btnConfirm.onclick = ()=>{
-        const selectedDate =
-        datePicker.value;
+        const selectedDate = datePicker.value;
         if(!selectedDate){
-            alert(
-                "Silakan pilih tanggal terlebih dahulu!"
-            );
-            return;
-        }
-        const dateParts =
-        selectedDate.split('-');
-        const targetDateESP32 =
-        `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
-        btnConfirm.innerText =
-        "Mencari Data...";
+            alert("Silakan pilih tanggal terlebih dahulu!");
+            return;}
+        const dateParts = selectedDate.split('-');
+        const targetDateESP32 = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        btnConfirm.innerText = "Mencari Data...";
         btnConfirm.disabled = true;
-        get(ref(db,'keramba/logs'))
-        .then((snapshot)=>{
+        get(ref(db,'keramba/logs')).then((snapshot)=>{
             if(snapshot.exists()){
-                let csvContent =
-                "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu (C),pH,Salinitas (g/L),Kekeruhan (NTU)\n";
+                let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu (C),pH,Salinitas (g/L),Kekeruhan (NTU)\n";
                 let dataFound = false;
                 snapshot.forEach((childSnapshot)=>{
                     const row = childSnapshot.val();
                     if(
-                        row.tanggal === targetDateESP32
-                    ){
+                        row.tanggal === targetDateESP32){
                         dataFound = true;
                         const suhu = getSuhu(row);
-                        csvContent +=
-                        `${row.tanggal},${row.waktu},${suhu ?? ''},${row.ph ?? ''},${row.salinitas ?? ''},${row.kekeruhan ?? ''}\n`;
-                    }
-                });
+                        csvContent +=`${row.tanggal},${row.waktu},${suhu ?? ''},${row.ph ?? ''},${row.salinitas ?? ''},${row.kekeruhan ?? ''}\n`;}});
                 if(dataFound){
                     const encodedUri = encodeURI(csvContent);
                     const link = document.createElement("a");
                     link.setAttribute(
-                        "href",
-                        encodedUri
-                    );
+                        "href", encodedUri);
                     link.setAttribute(
-                        "download",
-                        `Laporan_Kualitas_Air_${selectedDate}.csv`
-                    );
+                        "download", `Laporan_Kualitas_Air_${selectedDate}.csv`);
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    modal.style.display = "none";
-                }
+                    modal.style.display = "none";}
                 else{
-                    alert(
-                        `Data tanggal ${targetDateESP32} belum tersedia atau alat mati pada hari tersebut.`
-                    );
-                }
-            }
+                    alert(`Data tanggal ${targetDateESP32} belum tersedia atau alat mati pada hari tersebut.`);}}
             else{
-                alert(
-                    "Database masih kosong, belum ada rekaman sama sekali."
-                );
-            }
-        })
+                alert("Database masih kosong, belum ada rekaman sama sekali.");}})
         .catch((error)=>{
-            alert(
-                "Terjadi kesalahan koneksi internet."
-            );
-            console.error(error);
-        })
+            alert("Terjadi kesalahan koneksi internet.");
+            console.error(error);})
         .finally(()=>{
-            btnConfirm.innerText =
-            "Unduh CSV";
-            btnConfirm.disabled = false;
-        });
-    };
-}
+            btnConfirm.innerText ="Unduh CSV";
+            btnConfirm.disabled = false;});};}
 </script>
 </body>
 </html>
