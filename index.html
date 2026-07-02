@@ -639,41 +639,28 @@ function updateStatusPakanLogic(
     const value =
     document.getElementById('feedStatusValue');
 
+    // =========================
+    // PERLAKUAN PEMBERIAN PAKAN
+    // =========================
+
     let status = "NORMAL";
 
-    // NTU > 5
-    if(kekeruhan > 5){
-
-        status = "TUNDA PAKAN";
-    }
-
-    // SUHU / PH TIDAK NORMAL
-    else if(
-
+    // Hanya suhu dan pH yang menentukan perlakuan pemberian pakan
+    if (
         suhu < 28 ||
         suhu > 32 ||
-
         ph < 7.5 ||
         ph > 8.5
-
     ){
 
         status = "KURANGI PAKAN";
-    }
-
-    else{
-
-        status = "NORMAL";
     }
 
     value.innerText = status;
 
     card.classList.remove('feed-stop');
 
-    if(
-        status === "KURANGI PAKAN" ||
-        status === "TUNDA PAKAN"
-    ){
+    if(status === "KURANGI PAKAN"){
 
         card.classList.add('feed-stop');
     }
@@ -754,8 +741,6 @@ function updateStatusPakanLogic(
         cardKekeruhan.classList.add("param-warning");
     }
 }
-
-
 // =========================
 // MASKOT
 // =========================
