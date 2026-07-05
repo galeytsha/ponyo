@@ -1,533 +1,578 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monitor Kualitas Air Tambak</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<style>
-  :root{
-    --bg:#0A2523;
-    --panel:#0F3230;
-    --panel-2:#123B39;
-    --border:#1E5652;
-    --accent:#2DD9C4;
-    --accent-dim:#175E55;
-    --text:#EAF6F2;
-    --muted:#7FA9A0;
-    --red:#F0483D;
-    --red-bg:#3A1A17;
-    --amber:#E8A33D;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'IBM Plex Sans', sans-serif;
-    padding:2rem;
-  }
-  .mono{font-family:'IBM Plex Mono', monospace;}
-  .wrap{max-width:1100px; margin:0 auto;}
-
-  header{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-    flex-wrap:wrap;
-    gap:1rem;
-    border-bottom:1px solid var(--border);
-    padding-bottom:1.25rem;
-    margin-bottom:1.75rem;
-  }
-  .eyebrow{
-    font-size:12px;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-    color:var(--accent);
-    margin:0 0 4px;
-  }
-  h1{
-    font-size:24px;
-    font-weight:600;
-    margin:0;
-  }
-  .controls{
-    display:flex;
-    gap:10px;
-    align-items:center;
-    flex-wrap:wrap;
-  }
-  .btn{
-    font-family:inherit;
-    font-size:13px;
-    font-weight:500;
-    color:var(--text);
-    background:var(--panel-2);
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:9px 16px;
-    cursor:pointer;
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-  }
-  .btn:hover{border-color:var(--accent);}
-  .btn.primary{
-    background:var(--accent);
-    color:#03211D;
-    border-color:var(--accent);
-  }
-  .btn.danger{
-    color:var(--red);
-    border-color:var(--red-bg);
-  }
-  .btn.danger:hover{border-color:var(--red);}
-  input[type=file]{display:none;}
-
-  .meta-row{
-    font-size:12px;
-    color:var(--muted);
-    margin-bottom:1.5rem;
-    display:flex;
-    gap:1.5rem;
-    flex-wrap:wrap;
-  }
-
-  .cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));
-    gap:14px;
-    margin-bottom:2rem;
-  }
-  .card{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:1.1rem 1.25rem;
-    position:relative;
-    overflow:hidden;
-  }
-  .card.alert{
-    border-color:var(--red);
-    background:linear-gradient(0deg, var(--red-bg), var(--red-bg)), var(--panel);
-  }
-  .card-top{
-    display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    margin-bottom:.6rem;
-  }
-  .card-label{
-    font-size:12px;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    color:var(--muted);
-  }
-  .card-range{
-    font-size:11px;
-    color:var(--muted);
-  }
-  .card-value{
-    font-size:32px;
-    font-weight:600;
-    line-height:1;
-    margin-bottom:2px;
-  }
-  .card-unit{
-    font-size:13px;
-    color:var(--muted);
-    margin-left:4px;
-  }
-  .gauge{
-    position:relative;
-    height:6px;
-    border-radius:3px;
-    background:var(--panel-2);
-    margin:.85rem 0 .6rem;
-  }
-  .gauge-fill{
-    position:absolute;
-    top:0; left:0; bottom:0;
-    border-radius:3px;
-    background:var(--accent-dim);
-  }
-  .gauge-marker{
-    position:absolute;
-    top:-3px;
-    width:12px; height:12px;
-    border-radius:50%;
-    background:var(--accent);
-    border:2px solid var(--bg);
-    transform:translateX(-50%);
-  }
-  .gauge-marker.out{background:var(--red);}
-  .status-pill{
-    display:inline-block;
-    font-size:11px;
-    font-weight:500;
-    padding:3px 9px;
-    border-radius:999px;
-    background:var(--accent-dim);
-    color:var(--accent);
-  }
-  .status-pill.out{
-    background:rgba(240,72,61,.18);
-    color:var(--red);
-  }
-
-  .charts{
-    display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(420px, 1fr));
-    gap:16px;
-  }
-  .chart-card{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:1rem 1.1rem;
-  }
-  .chart-card h3{
-    font-size:13px;
-    font-weight:500;
-    color:var(--muted);
-    margin:0 0 .75rem;
-    text-transform:uppercase;
-    letter-spacing:.05em;
-  }
-  .chart-holder{position:relative; height:220px;}
-
-  .empty{
-    text-align:center;
-    padding:3.5rem 1rem;
-    color:var(--muted);
-    border:1px dashed var(--border);
-    border-radius:12px;
-    margin-bottom:2rem;
-  }
-  .empty h2{
-    color:var(--text);
-    font-size:16px;
-    margin:0 0 .4rem;
-  }
-  .empty p{font-size:13px; margin:0 0 1.1rem;}
-  .hidden{display:none;}
-
-  footer{
-    margin-top:1.75rem;
-    font-size:11px;
-    color:var(--muted);
-    text-align:center;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor Kualitas Air - Umrah</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        *{
+            box-sizing:border-box;
+            margin:0;
+            padding:0;
+            font-family:'Quicksand',sans-serif;}
+        body{
+            background-color:#f7f9fc;
+            color:#333;
+            padding:20px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;}
+        .container{
+            width:100%;
+            max-width:480px;
+            display:flex;
+            flex-direction:column;
+            gap:20px;}
+        /*HEADER*/
+        .header{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:15px;
+            width:100%;
+            background:white;
+            padding:15px;
+            border-radius:20px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.02);}
+        .mascot-header{
+            position:relative;
+            width:100px;
+            flex-shrink:0;}
+        .mascot-header img{
+            width:100%;
+            height:auto;
+            display:block;}
+        .header-text{
+            text-align:left;}
+        .header-text h1{
+            font-size:18px;
+            font-weight:700;
+            color:#2c3e50;
+            margin-bottom:2px;}
+        .header-text p{
+            font-size:12px;
+            color:#7f8c8d;}
+        /*STATUS PAKAN*/
+        .action-row{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+            width:100%;}
+        .feed-status-card,
+        .btn-download-trigger{
+            min-height:82px;
+            border-radius:18px;
+            box-shadow:0 4px 10px rgba(0,0,0,0.04);}
+        .feed-status-card{
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            padding:12px 14px;
+            background:#ffffff;
+            border:1px solid rgba(0,0,0,0.05);
+            color:#2c3e50;
+            transition:all 0.3s ease;}
+        .feed-stop{
+            background:rgba(231,76,60,0.16);
+            border-color:rgba(231,76,60,0.28);
+            color:#c0392b;}
+        .feed-label{
+            font-size:13px;
+            font-weight:500;
+            margin-bottom:6px;}
+        .feed-value{
+            font-size:18px;
+            font-weight:700;
+            line-height:1.15;}
+        .btn-download-trigger{
+            background-color:#27ae60;
+            color:white;
+            border:none;
+            padding:12px;
+            font-size:14px;
+            font-weight:700;
+            cursor:pointer;
+            width:100%;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:8px;
+            text-align:center;
+            line-height:1.25;}
+        /*KARTU DATA*/
+        .card{
+            background-color:#ffffff;
+            border-radius:20px;
+            padding:20px;
+            box-shadow:0 8px 15px rgba(0,0,0,0.03);}
+        .summary-list{
+            display:flex;
+            flex-direction:column;
+            gap:12px;}
+        .summary-item{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            font-size:15px;
+            font-weight:700;
+            color:#4a4a4a;
+            padding:10px 12px;
+            border-radius:12px;
+            transition:all 0.3s ease;
+            background:#ffffff;}
+        .param-normal{
+            background:#ffffff;
+            border:1px solid rgba(0,0,0,0.05);}
+        .param-warning{
+            background:rgba(231,76,60,0.16);
+            border:1px solid rgba(231,76,60,0.28);
+            color:#c0392b;}
+        .item-left{
+            display:flex;
+            align-items:center;
+            gap:12px;}
+        .item-icon{
+            font-size:22px;
+            width:28px;
+            text-align:center;}
+        /*GRAFIK*/
+        .chart-header{
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:10px;
+            font-weight:700;
+            color:#2c3e50;
+            font-size:14px;}
+        .chart-container{
+            position:relative;
+            height:180px;
+            width:100%;}
+        /*MODAL*/
+        .modal{
+            display:none;
+            position:fixed;
+            z-index:1000;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+            background-color:rgba(0,0,0,0.5);
+            align-items:center;
+            justify-content:center;}
+        .modal-content{
+            background-color:#fff;
+            padding:25px;
+            border-radius:20px;
+            width:90%;
+            max-width:400px;
+            text-align:center;}
+        .modal-content h3{
+            margin-bottom:10px;
+            color:#2c3e50;
+        }
+        .modal-content p{
+            font-size:13px;
+            color:#7f8c8d;
+            margin-bottom:20px;}
+        .date-input{
+            width:100%;
+            padding:12px;
+            border:2px solid #ecf0f1;
+            border-radius:8px;
+            margin-bottom:20px;
+            font-size:16px;}
+        .btn-group{
+            display:flex;
+            gap:10px;}
+        .btn-confirm{
+            flex:1;
+            background-color:#3498db;
+            color:white;
+            border:none;
+            padding:12px;
+            border-radius:8px;
+            font-weight:700;}
+        .btn-cancel{
+            flex:1;
+            background-color:#e74c3c;
+            color:white;
+            border:none;
+            padding:12px;
+            border-radius:8px;
+            font-weight:700;}
+        /*FOOTER*/
+        .footer{
+            text-align:center;
+            margin-top:10px;
+            padding-bottom:30px;
+            font-weight:700;
+            color:#2c3e50;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            font-size:13px;}
+        .footer img{
+            height:35px;
+            width:auto;}
 </style>
 </head>
 <body>
-<div class="wrap">
-
-  <header>
-    <div>
-      <p class="eyebrow">Water quality monitoring</p>
-      <h1>Monitor Kualitas Air Tambak</h1>
+<div class="container">
+    <!-- HEADER -->
+    <div class="header">
+        <div class="mascot-header">
+            <img id="mascotImage" src="wake.png" alt="Maskot">
+        </div>
+        <div class="header-text">
+            <h1>Monitor Kualitas Air</h1>
+            <p id="last-update">Menunggu data...</p>
+        </div>
     </div>
-    <div class="controls">
-      <label class="btn primary" for="csvInput">Unggah DATA.CSV</label>
-      <input type="file" id="csvInput" accept=".csv" multiple>
-      <button class="btn danger" id="resetBtn">Reset Tampilan</button>
+    <!-- STATUS PAKAN -->
+    <div class="action-row">
+        <div id="feedStatusCard" class="feed-status-card">
+            <div class="feed-label">🐟🍽️ Perlakuan Pemberian Pakan</div>
+            <div id="feedStatusValue" class="feed-value">MENUNGGU...</div>
+        </div>
+        <button id="btnOpenModal" class="btn-download-trigger">
+            <span>📊</span>
+            <span>Unduh Laporan Harian</span>
+        </button>
     </div>
-  </header>
-
-  <div class="meta-row">
-    <span id="fileInfo">Belum ada file diunggah.</span>
-    <span id="recordCount"></span>
-    <span id="lastUpdate"></span>
-  </div>
-
-  <div class="empty" id="emptyState">
-    <h2>Belum ada data untuk ditampilkan</h2>
-    <p>Salin file <span class="mono">DATA.CSV</span> dari folder tanggal di SD Card alat, lalu unggah di sini untuk melihat grafik dan status parameter.</p>
-    <label class="btn primary" for="csvInput">Pilih file CSV</label>
-  </div>
-
-  <div id="dashboardContent" class="hidden">
-    <div class="cards" id="statCards"></div>
-
-    <div class="charts">
-      <div class="chart-card">
-        <h3>Suhu (&deg;C)</h3>
-        <div class="chart-holder"><canvas id="chartSuhu" role="img" aria-label="Grafik suhu air terhadap waktu"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>pH</h3>
-        <div class="chart-holder"><canvas id="chartPh" role="img" aria-label="Grafik pH air terhadap waktu"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Salinitas (g/L)</h3>
-        <div class="chart-holder"><canvas id="chartSalin" role="img" aria-label="Grafik salinitas air terhadap waktu"></canvas></div>
-      </div>
-      <div class="chart-card">
-        <h3>Turbidity (NTU)</h3>
-        <div class="chart-holder"><canvas id="chartTurb" role="img" aria-label="Grafik kekeruhan air terhadap waktu"></canvas></div>
-      </div>
+    <!-- PARAMETER -->
+    <div class="card">
+        <div class="summary-list">
+            <div id="card-suhu" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">🌡️</span>
+                    <span>Suhu</span>
+                </div>
+                <span id="val-suhu">-- °C</span>
+            </div>
+            <div id="card-ph" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">💧</span>
+                    <span>pH</span>
+                </div>
+                <span id="val-ph">--</span>
+            </div>
+            <div id="card-salinitas" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">🧂</span>
+                    <span>Salinitas</span>
+                </div>
+                <span id="val-salinitas">-- g/L</span>
+            </div>
+            <div id="card-kekeruhan" class="summary-item param-normal">
+                <div class="item-left">
+                    <span class="item-icon">🟤</span>
+                    <span>Kekeruhan</span>
+                </div>
+                <span id="val-kekeruhan">-- NTU</span>
+            </div>
+        </div>
     </div>
-  </div>
-
-  <footer>Reset hanya membersihkan tampilan grafik dan status di halaman ini &mdash; file DATA.CSV di SD Card tidak terhapus.</footer>
+    <!-- GRAFIK -->
+    <div class="card">
+        <div class="chart-header">🌡️ Suhu (°C)</div>
+        <div class="chart-container">
+            <canvas id="chartSuhu"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <div class="chart-header">💧 pH</div>
+        <div class="chart-container">
+            <canvas id="chartPH"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <div class="chart-header">🧂 Salinitas (g/L)</div>
+        <div class="chart-container">
+            <canvas id="chartSalinitas"></canvas>
+        </div>
+    </div>
+    <div class="card">
+        <div class="chart-header">🟤 Kekeruhan (NTU)</div>
+        <div class="chart-container">
+            <canvas id="chartKekeruhan"></canvas>
+        </div>
+    </div>
+    <!-- FOOTER -->
+    <div class="footer">
+        <img src="Umrah.PNG" alt="Umrah">
+        <span>Universitas Maritim Raja Ali Haji</span>
+    </div>
 </div>
-
-<script>
-const PARAMS = {
-  suhu:  { label:'Suhu',      unit:'\u00B0C', min:28.00, max:32.00, hasFeedRule:true,  gaugeMin:24, gaugeMax:36 },
-  ph:    { label:'pH',        unit:'',        min:7.50,  max:8.50,  hasFeedRule:false, gaugeMin:6.0, gaugeMax:10.0 },
-  salin: { label:'Salinitas', unit:'g/L',     min:28.00, max:33.00, hasFeedRule:false, gaugeMin:22, gaugeMax:39 },
-  turb:  { label:'Turbidity', unit:'NTU',     min:0,     max:5,     hasFeedRule:false, gaugeMin:0, gaugeMax:15, upperOnly:true }
-};
-
-const COLORS = { suhu:'#2DD9C4', ph:'#5DCAA5', salin:'#3B9EDD', turb:'#E8A33D' };
-
-let dataset = [];
-
-const csvInput   = document.getElementById('csvInput');
-const resetBtn    = document.getElementById('resetBtn');
-const emptyState  = document.getElementById('emptyState');
-const dashboard   = document.getElementById('dashboardContent');
-const fileInfo    = document.getElementById('fileInfo');
-const recordCount = document.getElementById('recordCount');
-const lastUpdate  = document.getElementById('lastUpdate');
-const statCards   = document.getElementById('statCards');
-
-let charts = {};
-
-function formatValue(key, value) {
-  if (key === 'turb') {
-    return value < 100 ? value.toFixed(2) : value.toFixed(1);
-  }
-  return value.toFixed(2);
-}
-
-function parseCSV(text) {
-  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
-  const rows = [];
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    if (line.startsWith('Tanggal,Waktu')) continue;
-    const cols = line.split(',');
-    if (cols.length < 6) continue;
-    const [tanggal, waktu, suhu, ph, turb, salin] = cols;
-    const ts = new Date(tanggal + 'T' + waktu);
-    if (isNaN(ts.getTime())) continue;
-    rows.push({
-      ts,
-      label: tanggal.slice(5) + ' ' + waktu.slice(0,5),
-      suhu: parseFloat(suhu),
-      ph: parseFloat(ph),
-      turb: parseFloat(turb),
-      salin: parseFloat(salin)
-    });
-  }
-  return rows;
-}
-
-function handleFiles(fileList) {
-  const files = Array.from(fileList);
-  if (files.length === 0) return;
-
-  let filesRead = 0;
-  let combined = [];
-
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      combined = combined.concat(parseCSV(e.target.result));
-      filesRead++;
-      if (filesRead === files.length) {
-        combined.sort((a, b) => a.ts - b.ts);
-        dataset = combined;
-        fileInfo.textContent = files.length === 1
-          ? ('File: ' + files[0].name)
-          : (files.length + ' file diunggah');
-        renderAll();
-      }
-    };
-    reader.readAsText(file);
-  });
-}
-
-csvInput.addEventListener('change', (e) => handleFiles(e.target.files));
-
-resetBtn.addEventListener('click', () => {
-  dataset = [];
-  csvInput.value = '';
-  fileInfo.textContent = 'Belum ada file diunggah.';
-  recordCount.textContent = '';
-  lastUpdate.textContent = '';
-  renderAll();
-});
-
-function statusFor(key, value) {
-  const cfg = PARAMS[key];
-  const below = value < cfg.min;
-  const above = value > cfg.max;
-  const outOfRange = below || above;
-
-  let text = 'Normal';
-  if (cfg.hasFeedRule) {
-    if (below) text = 'Kurangi pakan';
-    else if (above) text = 'Pakan normal';
-  } else if (cfg.upperOnly) {
-    if (above) text = 'Di atas batas normal';
-  } else {
-    if (below) text = 'Di bawah rentang';
-    else if (above) text = 'Di atas rentang';
-  }
-  return { outOfRange, text };
-}
-
-function renderCard(key, value) {
-  const cfg = PARAMS[key];
-  const st = statusFor(key, value);
-  const rangeLabel = cfg.upperOnly
-    ? ('Normal < ' + cfg.max + ' ' + cfg.unit)
-    : ('Rentang normal ' + cfg.min.toFixed(2) + '\u2013' + cfg.max.toFixed(2) + ' ' + cfg.unit);
-
-  const gaugeSpan = cfg.gaugeMax - cfg.gaugeMin;
-  const fillStartPct = ((cfg.min - cfg.gaugeMin) / gaugeSpan) * 100;
-  const fillWidthPct = ((cfg.max - cfg.min) / gaugeSpan) * 100;
-  let markerPct = ((value - cfg.gaugeMin) / gaugeSpan) * 100;
-  markerPct = Math.max(0, Math.min(100, markerPct));
-
-  return `
-    <div class="card ${st.outOfRange ? 'alert' : ''}">
-      <div class="card-top">
-        <span class="card-label">${cfg.label}</span>
-        <span class="card-range">${rangeLabel}</span>
-      </div>
-      <div class="card-value mono">${formatValue(key, value)}<span class="card-unit">${cfg.unit}</span></div>
-      <div class="gauge">
-        <div class="gauge-fill" style="left:${fillStartPct}%; width:${fillWidthPct}%;"></div>
-        <div class="gauge-marker ${st.outOfRange ? 'out' : ''}" style="left:${markerPct}%;"></div>
-      </div>
-      <span class="status-pill ${st.outOfRange ? 'out' : ''}">${st.text}</span>
+<!-- MODAL -->
+<div id="downloadModal" class="modal">
+    <div class="modal-content">
+        <h3>Pilih Tanggal Laporan</h3>
+        <p>
+            Data hari ini baru akan tersedia untuk diunduh besok jam 00:00.
+        </p>
+        <input type="date" id="datePicker" class="date-input">
+        <div class="btn-group">
+            <button id="btnCancel" class="btn-cancel">
+                Batal
+            </button>
+            <button id="btnConfirmDownload" class="btn-confirm">
+                Unduh CSV
+            </button>
+        </div>
     </div>
-  `;
-}
-
-function buildOrUpdateChart(id, key, labels, values) {
-  const canvas = document.getElementById(id);
-  const cfg = PARAMS[key];
-  const color = COLORS[key];
-
-  const minLine = new Array(values.length).fill(cfg.upperOnly ? 0 : cfg.min);
-  const maxLine = new Array(values.length).fill(cfg.max);
-
-  if (charts[id]) {
-    charts[id].data.labels = labels;
-    charts[id].data.datasets[0].data = values;
-    charts[id].data.datasets[1].data = minLine;
-    charts[id].data.datasets[2].data = maxLine;
-    charts[id].update();
-    return;
-  }
-
-  charts[id] = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [
-        {
-          label: cfg.label,
-          data: values,
-          borderColor: color,
-          backgroundColor: color + '33',
-          borderWidth: 2,
-          pointRadius: 0,
-          tension: .25,
-          order: 1
-        },
-        {
-          label: 'Batas bawah',
-          data: minLine,
-          borderColor: '#7FA9A0',
-          borderDash: [4,4],
-          borderWidth: 1,
-          pointRadius: 0,
-          fill: '+1',
-          backgroundColor: 'rgba(45,217,196,0.06)',
-          order: 2
-        },
-        {
-          label: 'Batas atas',
-          data: maxLine,
-          borderColor: '#7FA9A0',
-          borderDash: [4,4],
-          borderWidth: 1,
-          pointRadius: 0,
-          order: 3
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: (ctx) => {
-              if (ctx.datasetIndex !== 0) return null;
-              return cfg.label + ': ' + formatValue(key, ctx.parsed.y) + ' ' + cfg.unit;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: '#7FA9A0', maxTicksLimit: 6, font: { size: 10 } },
-          grid: { color: '#1E5652' }
-        },
-        y: {
-          ticks: {
-            color: '#7FA9A0',
-            font: { size: 10 },
-            callback: (v) => formatValue(key, v)
-          },
-          grid: { color: '#1E5652' }
-        }
-      }
-    }
-  });
-}
-
-function renderAll() {
-  if (dataset.length === 0) {
-    emptyState.classList.remove('hidden');
-    dashboard.classList.add('hidden');
-    return;
-  }
-  emptyState.classList.add('hidden');
-  dashboard.classList.remove('hidden');
-
-  recordCount.textContent = dataset.length + ' baris data';
-  const last = dataset[dataset.length - 1];
-  lastUpdate.textContent = 'Data terakhir: ' + last.label;
-
-  statCards.innerHTML =
-    renderCard('suhu',  last.suhu) +
-    renderCard('ph',    last.ph) +
-    renderCard('salin', last.salin) +
-    renderCard('turb',  last.turb);
-
-  const labels = dataset.map(d => d.label);
-  buildOrUpdateChart('chartSuhu',  'suhu',  labels, dataset.map(d => d.suhu));
-  buildOrUpdateChart('chartPh',    'ph',    labels, dataset.map(d => d.ph));
-  buildOrUpdateChart('chartSalin', 'salin', labels, dataset.map(d => d.salin));
-  buildOrUpdateChart('chartTurb',  'turb',  labels, dataset.map(d => d.turb));
-}
-
-renderAll();
+</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import {
+    getDatabase,
+    ref,
+    onValue,
+    get,
+    query,
+    limitToLast}
+from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+// FIREBASE
+const firebaseConfig = {
+    apiKey: "AIzaSyDfZtWCnZtWZAeyqeCKydsHgc_uZ4VciOE",
+    authDomain: "kualitas-air-74caa.firebaseapp.com",
+    databaseURL: "https://kualitas-air-74caa-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "kualitas-air-74caa",
+    storageBucket: "kualitas-air-74caa.firebasestorage.app",
+    messagingSenderId: "1043958781105",
+    appId: "1:1043958781105:web:59c84659c1030381e33e90"};
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+// GRAFIK
+const commonOptions = {
+    responsive:true,
+    maintainAspectRatio:false,
+    plugins:{
+        legend:{ display:false}},
+    scales:{
+        x:{grid:{display:false}},
+        y:{beginAtZero:false}}};
+function createChart(id,color,label){
+    return new Chart(document.getElementById(id),{
+        type:'line',
+        data:{
+            labels:[],
+            datasets:[{
+                label:label,
+                data:[],
+                borderColor:color,
+                tension:0.4,
+                pointRadius:2}]},
+        options:commonOptions});}
+const chartSuhu = createChart('chartSuhu','#e74c3c','Suhu');
+const chartPH = createChart('chartPH','#9b59b6','pH');
+const chartSalinitas = createChart('chartSalinitas','#16a085','Salinitas');
+const chartKekeruhan = createChart('chartKekeruhan','#e67e22','Kekeruhan');
+// VALIDASI
+function isValidValue(value){
+    return value !== undefined &&
+           value !== null &&
+           value !== "";}
+function formatValue(value,suffix=""){
+    return isValidValue(value)
+        ? `${value}${suffix}`
+        : `--${suffix}`;}
+function getSuhu(data){
+    return data.suhu ?? data.suhu_air;}
+// GRAFIK REALTIME
+function pushDataSingle(chart,time,val){
+    if(!isValidValue(val)) return;
+    chart.data.labels.push(time);
+    chart.data.datasets[0].data.push(val);
+    if(chart.data.labels.length > 24){
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();}
+    chart.update();}
+function clearChart(chart){
+    chart.data.labels = [];
+    chart.data.datasets[0].data = [];}
+function pushHistoryData(chart,time,val){
+    if(!isValidValue(val)) return;
+    chart.data.labels.push(time);
+    chart.data.datasets[0].data.push(val);}
+// STATUS PAKAN
+function updateStatusPakanLogic(
+    suhu,
+    ph,
+    salinitas,
+    kekeruhan){
+    const card = document.getElementById('feedStatusCard');
+    const value = document.getElementById('feedStatusValue');
+// PERLAKUAN PEMBERIAN PAKAN
+    let status = "NORMAL";
+    // Hanya suhu dan pH yang menentukan perlakuan pemberian pakan
+    if (
+    suhu < 28 ||
+    ph < 7.5 ||
+    ph > 8.5)
+    {status = "KURANGI PAKAN";}
+    value.innerText = status;
+    card.classList.remove('feed-stop');
+    if(status === "KURANGI PAKAN"){
+        card.classList.add('feed-stop');}
+// SUHU
+    const cardSuhu = document.getElementById("card-suhu");
+    if(suhu >= 28){
+    cardSuhu.classList.remove("param-warning");
+    cardSuhu.classList.add("param-normal");}
+    else{
+    cardSuhu.classList.remove("param-normal");
+    cardSuhu.classList.add("param-warning");}
+// pH
+    const cardPH = document.getElementById("card-ph");
+    if(ph >= 7.5 && ph <= 8.5){
+        cardPH.classList.remove("param-warning");
+        cardPH.classList.add("param-normal");}
+    else{
+        cardPH.classList.remove("param-normal");
+        cardPH.classList.add("param-warning");}
+// SALINITAS
+    const cardSalinitas = document.getElementById("card-salinitas");
+    if(salinitas >= 28 && salinitas <= 33){
+        cardSalinitas.classList.remove("param-warning");
+        cardSalinitas.classList.add("param-normal");}
+    else{
+        cardSalinitas.classList.remove("param-normal");
+        cardSalinitas.classList.add("param-warning");}
+// KEKERUHAN
+    const cardKekeruhan = document.getElementById("card-kekeruhan");
+    if(kekeruhan < 5){
+        cardKekeruhan.classList.remove("param-warning");
+        cardKekeruhan.classList.add("param-normal");}
+    else{
+        cardKekeruhan.classList.remove("param-normal");
+        cardKekeruhan.classList.add("param-warning");}}
+// MASKOT
+let lastDataTime = Date.now();
+function updateMascot(isActive){
+    const img = document.getElementById('mascotImage');
+    if(isActive){
+        img.src = 'wake.png';}
+    else{
+        img.src = 'sleep.png';}}
+// RIWAYAT GRAFIK
+const historyRef = query(ref(db,'keramba/logs'),limitToLast(24));
+get(historyRef).then((snapshot)=>{
+    if(snapshot.exists()){
+        clearChart(chartSuhu);
+        clearChart(chartPH);
+        clearChart(chartSalinitas);
+        clearChart(chartKekeruhan);
+        snapshot.forEach((childSnapshot)=>{
+            const val = childSnapshot.val();
+            const jamMenit = val.waktu? val.waktu.substring(0,5): "--:--";
+            pushHistoryData(chartSuhu, jamMenit, getSuhu(val));
+            pushHistoryData(chartPH, jamMenit, val.ph);
+            pushHistoryData(chartSalinitas, jamMenit, val.salinitas);
+            pushHistoryData(chartKekeruhan, jamMenit, val.kekeruhan);});
+        chartSuhu.update();
+        chartPH.update();
+        chartSalinitas.update();
+        chartKekeruhan.update();}});
+// REALTIME FIREBASE
+let lastChartUpdateTime = 0;
+const chartUpdateInterval = 15 * 60 * 1000;
+const sensorRef = ref(db,'keramba/latest');
+onValue(sensorRef,(snapshot)=>{
+    const data = snapshot.val();
+    if(data){
+        const now = Date.now();
+        lastDataTime = now;
+        updateMascot(true);
+        const suhu = getSuhu(data);
+        const ph = data.ph;
+        const salinitas = data.salinitas;
+        const kekeruhan = data.kekeruhan;
+        // STATUS
+        updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan);
+        // PARAMETER
+        document.getElementById('val-suhu').innerText = formatValue(suhu," °C");
+        document.getElementById('val-ph').innerText = formatValue(ph);
+        document.getElementById('val-salinitas').innerText = formatValue(salinitas," g/L");
+        document.getElementById('val-kekeruhan').innerText = formatValue(kekeruhan," NTU");
+        const time = data.waktu ? data.waktu.substring(0,5): "--:--";
+        document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
+        // UPDATE GRAFIK
+        if(
+            now - lastChartUpdateTime
+            >= chartUpdateInterval
+        ){
+            pushDataSingle(chartSuhu, time, suhu);
+            pushDataSingle(chartPH, time, ph);
+            pushDataSingle(chartSalinitas, time, salinitas);
+            pushDataSingle(chartKekeruhan, time, kekeruhan);
+            lastChartUpdateTime = now;}}});
+// MASKOT SLEEP
+setInterval(()=>{
+    if(
+        Date.now() - lastDataTime> 65000){
+        updateMascot(false);}},10000);
+// DOWNLOAD CSV
+const modal = document.getElementById("downloadModal");
+const btnOpen = document.getElementById("btnOpenModal");
+const btnCancel = document.getElementById("btnCancel");
+const btnConfirm = document.getElementById("btnConfirmDownload");
+const datePicker = document.getElementById("datePicker");
+const today = new Date();
+const yesterday = new Date(today);
+yesterday.setDate(yesterday.getDate() - 1);
+datePicker.max = yesterday.toISOString().split('T')[0];
+if(btnOpen){
+    btnOpen.onclick = ()=>{
+        modal.style.display = "flex";};}
+if(btnCancel){
+    btnCancel.onclick = ()=>{
+        modal.style.display = "none";};}
+if(btnConfirm){
+    btnConfirm.onclick = ()=>{
+        const selectedDate = datePicker.value;
+        if(!selectedDate){
+            alert("Silakan pilih tanggal terlebih dahulu!");
+            return;}
+        const dateParts = selectedDate.split('-');
+        const targetDateESP32 = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+        btnConfirm.innerText = "Mencari Data...";
+        btnConfirm.disabled = true;
+        get(ref(db,'keramba/logs')).then((snapshot)=>{
+            if(snapshot.exists()){
+                let csvContent = "data:text/csv;charset=utf-8,Tanggal,Waktu,Suhu (C),pH,Salinitas (g/L),Kekeruhan (NTU)\n";
+                let dataFound = false;
+                snapshot.forEach((childSnapshot)=>{
+                    const row = childSnapshot.val();
+                    if(
+                        row.tanggal === targetDateESP32){
+                        dataFound = true;
+                        const suhu = getSuhu(row);
+                        csvContent +=`${row.tanggal},${row.waktu},${suhu ?? ''},${row.ph ?? ''},${row.salinitas ?? ''},${row.kekeruhan ?? ''}\n`;}});
+                if(dataFound){
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement("a");
+                    link.setAttribute(
+                        "href", encodedUri);
+                    link.setAttribute(
+                        "download", `Laporan_Kualitas_Air_${selectedDate}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    modal.style.display = "none";}
+                else{
+                    alert(`Data tanggal ${targetDateESP32} belum tersedia atau alat mati pada hari tersebut.`);}}
+            else{
+                alert("Database masih kosong, belum ada rekaman sama sekali.");}})
+        .catch((error)=>{
+            alert("Terjadi kesalahan koneksi internet.");
+            console.error(error);})
+        .finally(()=>{
+            btnConfirm.innerText ="Unduh CSV";
+            btnConfirm.disabled = false;});};}
 </script>
 </body>
 </html>
