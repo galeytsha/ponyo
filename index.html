@@ -29,13 +29,20 @@
         .header{
             display:flex;
             align-items:center;
-            justify-content:center;
+            justify-content:space-between;
             gap:15px;
             width:100%;
             background:white;
             padding:15px;
             border-radius:20px;
             box-shadow:0 4px 10px rgba(0,0,0,0.02);}
+        .header-left{
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            gap:15px;
+            flex:1;
+            min-width:0;}
         .mascot-header{
             position:relative;
             width:100px;
@@ -54,6 +61,23 @@
         .header-text p{
             font-size:12px;
             color:#7f8c8d;}
+        .btn-reset{
+            width:40px;
+            height:40px;
+            border-radius:50%;
+            border:1px solid rgba(0,0,0,0.05);
+            background:#ffffff;
+            box-shadow:0 4px 10px rgba(0,0,0,0.04);
+            font-size:17px;
+            line-height:1;
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            flex-shrink:0;
+            transition:transform 0.15s ease;}
+        .btn-reset:active{
+            transform:scale(0.9);}
         /*STATUS PAKAN*/
         .action-row{
             display:grid;
@@ -224,13 +248,18 @@
 <div class="container">
     <!-- HEADER -->
     <div class="header">
-        <div class="mascot-header">
-            <img id="mascotImage" src="wake.png" alt="Maskot">
+        <div class="header-left">
+            <div class="mascot-header">
+                <img id="mascotImage" src="wake.png" alt="Maskot">
+            </div>
+            <div class="header-text">
+                <h1>Monitor Kualitas Air</h1>
+                <p id="last-update">Menunggu data...</p>
+            </div>
         </div>
-        <div class="header-text">
-            <h1>Monitor Kualitas Air</h1>
-            <p id="last-update">Menunggu data...</p>
-        </div>
+        <button id="btnReset" class="btn-reset" title="Reset tampilan (grafik & angka kembali ke 0, data di database tidak terhapus)">
+            <span>🔄</span>
+        </button>
     </div>
     <!-- STATUS PAKAN -->
     <div class="action-row">
@@ -380,6 +409,22 @@ function formatValue(value,suffix=""){
     return isValidValue(value)
         ? `${value}${suffix}`
         : `--${suffix}`;}
+// FORMAT KEKERUHAN: 2 angka desimal jika di bawah 100, 1 angka desimal jika 100 ke atas
+// (menghindari angka terlalu panjang, karena rumus kalibrasi kekeruhan bisa
+// menghasilkan nilai yang besar).
+function roundKekeruhan(value){
+    if(!isValidValue(value)) return value;
+    const num = parseFloat(value);
+    if(isNaN(num)) return value;
+    return num < 100 ? parseFloat(num.toFixed(2)) : parseFloat(num.toFixed(1));
+}
+function formatKekeruhan(value,suffix=" NTU"){
+    if(!isValidValue(value)) return `--${suffix}`;
+    const num = parseFloat(value);
+    if(isNaN(num)) return `--${suffix}`;
+    const formatted = num < 100 ? num.toFixed(2) : num.toFixed(1);
+    return `${formatted}${suffix}`;
+}
 function getSuhu(data){
     return data.suhu ?? data.suhu_air;}
 // GRAFIK REALTIME
@@ -408,7 +453,9 @@ function updateStatusPakanLogic(
     const value = document.getElementById('feedStatusValue');
 // PERLAKUAN PEMBERIAN PAKAN
     let status = "NORMAL";
-    // Hanya suhu dan pH yang menentukan perlakuan pemberian pakan
+    // Hanya suhu (batas bawah) dan pH yang menentukan perlakuan pemberian pakan.
+    // Suhu di ATAS rentang tetap dianggap "pakan normal" (lihat pengecekan
+    // kartu suhu di bawah untuk indikator di luar rentang).
     if (
     suhu < 28 ||
     ph < 7.5 ||
@@ -418,9 +465,9 @@ function updateStatusPakanLogic(
     card.classList.remove('feed-stop');
     if(status === "KURANGI PAKAN"){
         card.classList.add('feed-stop');}
-// SUHU
+// SUHU (rentang normal 28.00 - 32.00, di luar rentang = kartu merah)
     const cardSuhu = document.getElementById("card-suhu");
-    if(suhu >= 28){
+    if(suhu >= 28 && suhu <= 32){
     cardSuhu.classList.remove("param-warning");
     cardSuhu.classList.add("param-normal");}
     else{
@@ -472,7 +519,7 @@ get(historyRef).then((snapshot)=>{
             pushHistoryData(chartSuhu, jamMenit, getSuhu(val));
             pushHistoryData(chartPH, jamMenit, val.ph);
             pushHistoryData(chartSalinitas, jamMenit, val.salinitas);
-            pushHistoryData(chartKekeruhan, jamMenit, val.kekeruhan);});
+            pushHistoryData(chartKekeruhan, jamMenit, roundKekeruhan(val.kekeruhan));});
         chartSuhu.update();
         chartPH.update();
         chartSalinitas.update();
@@ -490,14 +537,14 @@ onValue(sensorRef,(snapshot)=>{
         const suhu = getSuhu(data);
         const ph = data.ph;
         const salinitas = data.salinitas;
-        const kekeruhan = data.kekeruhan;
+        const kekeruhan = roundKekeruhan(data.kekeruhan);
         // STATUS
         updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan);
         // PARAMETER
         document.getElementById('val-suhu').innerText = formatValue(suhu," °C");
         document.getElementById('val-ph').innerText = formatValue(ph);
         document.getElementById('val-salinitas').innerText = formatValue(salinitas," g/L");
-        document.getElementById('val-kekeruhan').innerText = formatValue(kekeruhan," NTU");
+        document.getElementById('val-kekeruhan').innerText = formatKekeruhan(data.kekeruhan);
         const time = data.waktu ? data.waktu.substring(0,5): "--:--";
         document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
         // UPDATE GRAFIK
@@ -515,6 +562,34 @@ setInterval(()=>{
     if(
         Date.now() - lastDataTime> 65000){
         updateMascot(false);}},10000);
+// RESET TAMPILAN
+// Hanya mengosongkan grafik & angka yang tampil di layar ini (kembali ke
+// kondisi 0), TIDAK menghapus data yang sudah tersimpan di Firebase.
+// Saat data baru datang dari alat, tampilan akan otomatis terisi lagi.
+const btnReset = document.getElementById('btnReset');
+if(btnReset){
+    btnReset.onclick = () => {
+        clearChart(chartSuhu); chartSuhu.update();
+        clearChart(chartPH); chartPH.update();
+        clearChart(chartSalinitas); chartSalinitas.update();
+        clearChart(chartKekeruhan); chartKekeruhan.update();
+
+        document.getElementById('val-suhu').innerText = "0.00 °C";
+        document.getElementById('val-ph').innerText = "0.00";
+        document.getElementById('val-salinitas').innerText = "0.00 g/L";
+        document.getElementById('val-kekeruhan').innerText = "0.00 NTU";
+        document.getElementById('last-update').innerText = "Menunggu data...";
+
+        ['card-suhu','card-ph','card-salinitas','card-kekeruhan'].forEach((id)=>{
+            const el = document.getElementById(id);
+            el.classList.remove('param-warning');
+            el.classList.add('param-normal');});
+
+        const feedCard = document.getElementById('feedStatusCard');
+        const feedValue = document.getElementById('feedStatusValue');
+        feedCard.classList.remove('feed-stop');
+        feedValue.innerText = "MENUNGGU...";
+    };}
 // DOWNLOAD CSV
 const modal = document.getElementById("downloadModal");
 const btnOpen = document.getElementById("btnOpenModal");
