@@ -376,6 +376,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 // GRAFIK
+// Sumbu waktu grafik TETAP (tidak bergeser): 00:00 - 22:00, kelipatan 2 jam,
+// mewakili satu siklus 1 hari penuh (kembali ke 00:00 keesokan harinya = data hari baru).
+const timeLabels = ['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
 const commonOptions = {
     responsive:true,
     maintainAspectRatio:false,
@@ -388,13 +391,14 @@ function createChart(id,color,label){
     return new Chart(document.getElementById(id),{
         type:'line',
         data:{
-            labels:[],
+            labels:timeLabels.slice(),
             datasets:[{
                 label:label,
-                data:[],
+                data:new Array(timeLabels.length).fill(null),
                 borderColor:color,
                 tension:0.4,
-                pointRadius:2}]},
+                pointRadius:2,
+                spanGaps:false}]},
         options:commonOptions});}
 const chartSuhu = createChart('chartSuhu','#e74c3c','Suhu');
 const chartPH = createChart('chartPH','#9b59b6','pH');
@@ -405,44 +409,48 @@ function isValidValue(value){
     return value !== undefined &&
            value !== null &&
            value !== "";}
+// FORMAT SUHU / pH / SALINITAS: selalu 2 angka desimal di belakang koma.
 function formatValue(value,suffix=""){
-    return isValidValue(value)
-        ? `${value}${suffix}`
-        : `--${suffix}`;}
-// FORMAT KEKERUHAN: 2 angka desimal jika di bawah 100, 1 angka desimal jika 100 ke atas
-// (menghindari angka terlalu panjang, karena rumus kalibrasi kekeruhan bisa
-// menghasilkan nilai yang besar).
+    if(!isValidValue(value)) return `--${suffix}`;
+    const num = parseFloat(value);
+    if(isNaN(num)) return `--${suffix}`;
+    return `${num.toFixed(2)}${suffix}`;}
+// FORMAT KEKERUHAN: bilangan bulat saja, tanpa angka di belakang koma.
 function roundKekeruhan(value){
     if(!isValidValue(value)) return value;
     const num = parseFloat(value);
     if(isNaN(num)) return value;
-    return num < 100 ? parseFloat(num.toFixed(2)) : parseFloat(num.toFixed(1));
-}
+    return Math.round(num);}
 function formatKekeruhan(value,suffix=" NTU"){
     if(!isValidValue(value)) return `--${suffix}`;
     const num = parseFloat(value);
     if(isNaN(num)) return `--${suffix}`;
-    const formatted = num < 100 ? num.toFixed(2) : num.toFixed(1);
-    return `${formatted}${suffix}`;
-}
+    return `${Math.round(num)}${suffix}`;}
 function getSuhu(data){
     return data.suhu ?? data.suhu_air;}
-// GRAFIK REALTIME
-function pushDataSingle(chart,time,val){
+// GRAFIK - SLOT WAKTU TETAP
+// Setiap data ditempatkan pada slot 2 jam sesuai jam datanya (00-01 -> slot 00:00,
+// 02-03 -> slot 02:00, dst). Jika tidak ada data pada slot tsb, dibiarkan kosong (null),
+// bukan diisi 0. spanGaps:false membuat garis grafik terputus pada bagian yang kosong.
+function getSlotIndex(waktu){
+    if(!waktu) return null;
+    const hour = parseInt(waktu.substring(0,2),10);
+    if(isNaN(hour)) return null;
+    const idx = Math.floor(hour/2);
+    return (idx >= 0 && idx < timeLabels.length) ? idx : null;}
+function resetChartSlots(chart){
+    chart.data.datasets[0].data = new Array(timeLabels.length).fill(null);}
+function setChartSlot(chart,slotIndex,val){
+    if(slotIndex === null) return;
     if(!isValidValue(val)) return;
-    chart.data.labels.push(time);
-    chart.data.datasets[0].data.push(val);
-    if(chart.data.labels.length > 24){
-        chart.data.labels.shift();
-        chart.data.datasets[0].data.shift();}
-    chart.update();}
-function clearChart(chart){
-    chart.data.labels = [];
-    chart.data.datasets[0].data = [];}
-function pushHistoryData(chart,time,val){
-    if(!isValidValue(val)) return;
-    chart.data.labels.push(time);
-    chart.data.datasets[0].data.push(val);}
+    chart.data.datasets[0].data[slotIndex] = val;}
+function getTodayESP32Format(){
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2,'0');
+    const mm = String(now.getMonth()+1).padStart(2,'0');
+    const yyyy = now.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;}
+let currentChartDate = getTodayESP32Format();
 // STATUS PAKAN
 function updateStatusPakanLogic(
     suhu,
@@ -505,28 +513,28 @@ function updateMascot(isActive){
         img.src = 'wake.png';}
     else{
         img.src = 'sleep.png';}}
-// RIWAYAT GRAFIK
-const historyRef = query(ref(db,'keramba/logs'),limitToLast(24));
+// RIWAYAT GRAFIK (hanya data hari ini yang dipetakan ke slot 2 jam)
+const historyRef = query(ref(db,'keramba/logs'),limitToLast(100));
 get(historyRef).then((snapshot)=>{
     if(snapshot.exists()){
-        clearChart(chartSuhu);
-        clearChart(chartPH);
-        clearChart(chartSalinitas);
-        clearChart(chartKekeruhan);
+        resetChartSlots(chartSuhu);
+        resetChartSlots(chartPH);
+        resetChartSlots(chartSalinitas);
+        resetChartSlots(chartKekeruhan);
+        const today = getTodayESP32Format();
         snapshot.forEach((childSnapshot)=>{
             const val = childSnapshot.val();
-            const jamMenit = val.waktu? val.waktu.substring(0,5): "--:--";
-            pushHistoryData(chartSuhu, jamMenit, getSuhu(val));
-            pushHistoryData(chartPH, jamMenit, val.ph);
-            pushHistoryData(chartSalinitas, jamMenit, val.salinitas);
-            pushHistoryData(chartKekeruhan, jamMenit, roundKekeruhan(val.kekeruhan));});
+            if(val.tanggal !== today) return;
+            const slot = getSlotIndex(val.waktu);
+            setChartSlot(chartSuhu, slot, getSuhu(val));
+            setChartSlot(chartPH, slot, val.ph);
+            setChartSlot(chartSalinitas, slot, val.salinitas);
+            setChartSlot(chartKekeruhan, slot, roundKekeruhan(val.kekeruhan));});
         chartSuhu.update();
         chartPH.update();
         chartSalinitas.update();
         chartKekeruhan.update();}});
 // REALTIME FIREBASE
-let lastChartUpdateTime = 0;
-const chartUpdateInterval = 15 * 60 * 1000;
 const sensorRef = ref(db,'keramba/latest');
 onValue(sensorRef,(snapshot)=>{
     const data = snapshot.val();
@@ -537,9 +545,9 @@ onValue(sensorRef,(snapshot)=>{
         const suhu = getSuhu(data);
         const ph = data.ph;
         const salinitas = data.salinitas;
-        const kekeruhan = roundKekeruhan(data.kekeruhan);
-        // STATUS
-        updateStatusPakanLogic(suhu, ph, salinitas, kekeruhan);
+        const kekeruhanRaw = data.kekeruhan;
+        // STATUS (memakai nilai asli/tidak dibulatkan agar batas peringatan tetap akurat)
+        updateStatusPakanLogic(suhu, ph, salinitas, kekeruhanRaw);
         // PARAMETER
         document.getElementById('val-suhu').innerText = formatValue(suhu," °C");
         document.getElementById('val-ph').innerText = formatValue(ph);
@@ -547,16 +555,23 @@ onValue(sensorRef,(snapshot)=>{
         document.getElementById('val-kekeruhan').innerText = formatKekeruhan(data.kekeruhan);
         const time = data.waktu ? data.waktu.substring(0,5): "--:--";
         document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
-        // UPDATE GRAFIK
-        if(
-            now - lastChartUpdateTime
-            >= chartUpdateInterval
-        ){
-            pushDataSingle(chartSuhu, time, suhu);
-            pushDataSingle(chartPH, time, ph);
-            pushDataSingle(chartSalinitas, time, salinitas);
-            pushDataSingle(chartKekeruhan, time, kekeruhan);
-            lastChartUpdateTime = now;}}});
+        // GANTI HARI -> RESET GRAFIK OTOMATIS (sumbu waktu tidak bergeser, mulai lagi dari 00:00)
+        if(data.tanggal && data.tanggal !== currentChartDate){
+            currentChartDate = data.tanggal;
+            resetChartSlots(chartSuhu);
+            resetChartSlots(chartPH);
+            resetChartSlots(chartSalinitas);
+            resetChartSlots(chartKekeruhan);}
+        // UPDATE GRAFIK (isi slot 2 jam sesuai waktu data masuk)
+        const slot = getSlotIndex(data.waktu);
+        setChartSlot(chartSuhu, slot, suhu);
+        setChartSlot(chartPH, slot, ph);
+        setChartSlot(chartSalinitas, slot, salinitas);
+        setChartSlot(chartKekeruhan, slot, roundKekeruhan(data.kekeruhan));
+        chartSuhu.update();
+        chartPH.update();
+        chartSalinitas.update();
+        chartKekeruhan.update();}});
 // MASKOT SLEEP
 setInterval(()=>{
     if(
@@ -569,15 +584,15 @@ setInterval(()=>{
 const btnReset = document.getElementById('btnReset');
 if(btnReset){
     btnReset.onclick = () => {
-        clearChart(chartSuhu); chartSuhu.update();
-        clearChart(chartPH); chartPH.update();
-        clearChart(chartSalinitas); chartSalinitas.update();
-        clearChart(chartKekeruhan); chartKekeruhan.update();
+        resetChartSlots(chartSuhu); chartSuhu.update();
+        resetChartSlots(chartPH); chartPH.update();
+        resetChartSlots(chartSalinitas); chartSalinitas.update();
+        resetChartSlots(chartKekeruhan); chartKekeruhan.update();
 
         document.getElementById('val-suhu').innerText = "0.00 °C";
         document.getElementById('val-ph').innerText = "0.00";
         document.getElementById('val-salinitas').innerText = "0.00 g/L";
-        document.getElementById('val-kekeruhan').innerText = "0.00 NTU";
+        document.getElementById('val-kekeruhan').innerText = "0 NTU";
         document.getElementById('last-update').innerText = "Menunggu data...";
 
         ['card-suhu','card-ph','card-salinitas','card-kekeruhan'].forEach((id)=>{
