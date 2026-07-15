@@ -376,9 +376,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 // GRAFIK
-// Sumbu waktu grafik TETAP (tidak bergeser): 00:00 - 22:00, kelipatan 2 jam,
-// mewakili satu siklus 1 hari penuh (kembali ke 00:00 keesokan harinya = data hari baru).
-const timeLabels = ['00:00','02:00','04:00','06:00','08:00','10:00','12:00','14:00','16:00','18:00','20:00','22:00'];
+// Sumbu waktu grafik TETAP (tidak bergeser): 00:00 - 23:45, kelipatan 15 menit
+// (data diambil tiap 15 menit tepat di menit 00/15/30/45), mewakili satu siklus
+// 1 hari penuh (kembali ke 00:00 keesokan harinya = data hari baru).
+const timeLabels = [];
+for(let h=0; h<24; h++){
+    for(let m=0; m<60; m+=15){
+        timeLabels.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);}}
 const commonOptions = {
     responsive:true,
     maintainAspectRatio:false,
@@ -429,14 +433,17 @@ function formatKekeruhan(value,suffix=" NTU"){
 function getSuhu(data){
     return data.suhu ?? data.suhu_air;}
 // GRAFIK - SLOT WAKTU TETAP
-// Setiap data ditempatkan pada slot 2 jam sesuai jam datanya (00-01 -> slot 00:00,
-// 02-03 -> slot 02:00, dst). Jika tidak ada data pada slot tsb, dibiarkan kosong (null),
-// bukan diisi 0. spanGaps:false membuat garis grafik terputus pada bagian yang kosong.
+// Setiap data ditempatkan pada slot 15 menit sesuai jam:menit datanya
+// (mis. data jam 07:15 -> slot 07:15, data jam 07:47 -> tetap dibulatkan
+// ke bawah ke slot 07:45 kalau bukan pas kelipatan 15). Jika tidak ada
+// data pada slot tsb, dibiarkan kosong (null), bukan diisi 0. spanGaps:false
+// membuat garis grafik terputus pada bagian yang kosong.
 function getSlotIndex(waktu){
     if(!waktu) return null;
     const hour = parseInt(waktu.substring(0,2),10);
-    if(isNaN(hour)) return null;
-    const idx = Math.floor(hour/2);
+    const minute = parseInt(waktu.substring(3,5),10);
+    if(isNaN(hour) || isNaN(minute)) return null;
+    const idx = hour*4 + Math.floor(minute/15);
     return (idx >= 0 && idx < timeLabels.length) ? idx : null;}
 function resetChartSlots(chart){
     chart.data.datasets[0].data = new Array(timeLabels.length).fill(null);}
@@ -513,8 +520,8 @@ function updateMascot(isActive){
         img.src = 'wake.png';}
     else{
         img.src = 'sleep.png';}}
-// RIWAYAT GRAFIK (hanya data hari ini yang dipetakan ke slot 2 jam)
-const historyRef = query(ref(db,'keramba/logs'),limitToLast(100));
+// RIWAYAT GRAFIK (hanya data hari ini yang dipetakan ke slot 15 menit)
+const historyRef = query(ref(db,'keramba/logs'),limitToLast(150));
 get(historyRef).then((snapshot)=>{
     if(snapshot.exists()){
         resetChartSlots(chartSuhu);
@@ -562,7 +569,7 @@ onValue(sensorRef,(snapshot)=>{
             resetChartSlots(chartPH);
             resetChartSlots(chartSalinitas);
             resetChartSlots(chartKekeruhan);}
-        // UPDATE GRAFIK (isi slot 2 jam sesuai waktu data masuk)
+        // UPDATE GRAFIK (isi slot 15 menit sesuai waktu data masuk)
         const slot = getSlotIndex(data.waktu);
         setChartSlot(chartSuhu, slot, suhu);
         setChartSlot(chartPH, slot, ph);
