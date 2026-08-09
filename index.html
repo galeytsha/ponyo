@@ -413,12 +413,18 @@ function isValidValue(value){
     return value !== undefined &&
            value !== null &&
            value !== "";}
-// FORMAT SUHU / pH / SALINITAS: selalu 2 angka desimal di belakang koma.
-function formatValue(value,suffix=""){
+// FORMAT SUHU / SALINITAS: bilangan bulat saja, tanpa angka di belakang koma.
+function formatInteger(value,suffix=""){
     if(!isValidValue(value)) return `--${suffix}`;
     const num = parseFloat(value);
     if(isNaN(num)) return `--${suffix}`;
-    return `${num.toFixed(2)}${suffix}`;}
+    return `${Math.round(num)}${suffix}`;}
+// FORMAT pH: selalu 1 angka desimal di belakang koma.
+function formatPH(value,suffix=""){
+    if(!isValidValue(value)) return `--${suffix}`;
+    const num = parseFloat(value);
+    if(isNaN(num)) return `--${suffix}`;
+    return `${num.toFixed(1)}${suffix}`;}
 // FORMAT KEKERUHAN: bilangan bulat saja, tanpa angka di belakang koma.
 function roundKekeruhan(value){
     if(!isValidValue(value)) return value;
@@ -556,9 +562,9 @@ onValue(sensorRef,(snapshot)=>{
         // STATUS (memakai nilai asli/tidak dibulatkan agar batas peringatan tetap akurat)
         updateStatusPakanLogic(suhu, ph, salinitas, kekeruhanRaw);
         // PARAMETER
-        document.getElementById('val-suhu').innerText = formatValue(suhu," °C");
-        document.getElementById('val-ph').innerText = formatValue(ph);
-        document.getElementById('val-salinitas').innerText = formatValue(salinitas," g/L");
+        document.getElementById('val-suhu').innerText = formatInteger(suhu," °C");
+        document.getElementById('val-ph').innerText = formatPH(ph);
+        document.getElementById('val-salinitas').innerText = formatInteger(salinitas," g/L");
         document.getElementById('val-kekeruhan').innerText = formatKekeruhan(data.kekeruhan);
         const time = data.waktu ? data.waktu.substring(0,5): "--:--";
         document.getElementById('last-update').innerText = "Update Terakhir: " + (data.tanggal || "--/--/--") + " " + time;
@@ -596,9 +602,9 @@ if(btnReset){
         resetChartSlots(chartSalinitas); chartSalinitas.update();
         resetChartSlots(chartKekeruhan); chartKekeruhan.update();
 
-        document.getElementById('val-suhu').innerText = "0.00 °C";
-        document.getElementById('val-ph').innerText = "0.00";
-        document.getElementById('val-salinitas').innerText = "0.00 g/L";
+        document.getElementById('val-suhu').innerText = "0 °C";
+        document.getElementById('val-ph').innerText = "0.0";
+        document.getElementById('val-salinitas').innerText = "0 g/L";
         document.getElementById('val-kekeruhan').innerText = "0 NTU";
         document.getElementById('last-update').innerText = "Menunggu data...";
 
